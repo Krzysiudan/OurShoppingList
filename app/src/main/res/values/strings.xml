@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Our Shopping List</string>
+    <string name="firsttime_activity_edittext">Wprowadź pseudonim</string>
+</resources>
