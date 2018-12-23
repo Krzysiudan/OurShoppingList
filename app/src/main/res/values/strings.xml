@@ -10,4 +10,6 @@
     <string name="textView_password_register_Activity">Password</string>
     <string name="textView_repeat_password_register_activity">Repeat password</string>
     <string name="button_register_register_activity">Register</string>
+    <string name="username_hint">Username</string>
+    <string name="action_sign_in_short">Sign in</string>
 </resources>

@@ -5,45 +5,65 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/shopping_cart">
+    android:background="@drawable/shopping_cart"
+    android:gravity="bottom">
 
     <android.support.design.widget.TextInputLayout
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:inputType="textEmailAddress"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView_password"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        >
 
-        <android.support.design.widget.TextInputEditText
+        app:layout_constraintBottom_toTopOf="@+id/textInputLayout5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <AutoCompleteTextView
+            android:id="@+id/textView_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
             android:hint="@string/textView_email"
-            android:textColorHint="@color/white"/>
+            android:inputType="textEmailAddress"
+            android:textColorHint="@color/white"
+
+            />
+
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/textView_password"
+
+        android:id="@+id/textInputLayout5"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:inputType="textPassword"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/button_input2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        >
+        app:layout_constraintStart_toStartOf="parent">
 
-        <android.support.design.widget.TextInputEditText
+
+        <EditText
+            android:id="@+id/textView_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/textView_password"
-            android:textColorHint="@color/white"/>
+            android:inputType="textPassword"
+            android:textColorHint="@color/white"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:imeActionId="@integer/login"
+            android:imeActionLabel="@string/action_sign_in_short"
+
+            />
+
     </android.support.design.widget.TextInputLayout>
 
     <Button
