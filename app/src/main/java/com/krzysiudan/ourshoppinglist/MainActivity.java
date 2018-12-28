@@ -2,11 +2,13 @@ package com.krzysiudan.ourshoppinglist;
 
 import android.app.ListActivity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         Log.e("OurShoppingList","Button refernces complited");
         mAuth = FirebaseAuth.getInstance();
 
+
         passwordText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
@@ -77,16 +80,23 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Toast.makeText(this,"OnResume Launched",Toast.LENGTH_SHORT).show();
+        checkIfThereIsEmailAndPassword();
+    }
+
     private void attemptLogin(){
         String email = emailText.getText().toString();
         String password = emailText.getText().toString();
 
-        if(email.equals("")||password.equals("")){
-            Toast.makeText(this,"Logging in progress",Toast.LENGTH_SHORT).show();
-            mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    Log.e("OurShoppingList","SignInWithEmail onComplete"+task.isSuccessful());
+        if(email.equals("")||password.equals("")) return;
+        Toast.makeText(this,"Logging in progress",Toast.LENGTH_SHORT).show();
+        mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                Log.e("OurShoppingList","SignInWithEmail onComplete"+task.isSuccessful());
 
                     if(!task.isSuccessful()){
                         Log.e("OurShoppingList","Problem singing in:"+task.getException());
@@ -98,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-        }
+
     }
 
     private void showErrorDialog(String message){
@@ -109,5 +119,25 @@ public class MainActivity extends AppCompatActivity {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
 
+    }
+
+
+    private void checkIfThereIsEmailAndPassword(){
+        String rememberedEmail ="";
+        String rememberedPassword="";
+
+        SharedPreferences prefer = getSharedPreferences(RegisterActivity.DATA_PREFS,MODE_PRIVATE);
+        rememberedEmail = prefer.getString(RegisterActivity.EMAIL_KEY,null);
+        rememberedPassword = prefer.getString(RegisterActivity.PASSWORD_KEY,null);
+
+        Log.e("OurShoppingList","RememberedEmail value: "+rememberedEmail);
+        Log.e("OurShoppingList","RememberedPassword value: "+rememberedPassword);
+
+        if(!(rememberedEmail==null)){
+            emailText.setText(rememberedEmail);
+        }
+        if(!(rememberedPassword==null)){
+            passwordText.setText(rememberedPassword);
+        }
     }
 }

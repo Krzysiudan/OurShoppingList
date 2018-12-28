@@ -27,6 +27,9 @@ public class RegisterActivity extends AppCompatActivity {
 
     public static final String LIST_PREFS ="ListPrefs";
     public static final String DISPLAY_NAME_KEY="username";
+    public static final String DATA_PREFS ="DataPrefs";
+    public static final String EMAIL_KEY="EmailKey";
+    public static final String PASSWORD_KEY="PasswordKey";
 
     private Button registerbutton;
     private AutoCompleteTextView usernameText;
@@ -138,6 +141,7 @@ public class RegisterActivity extends AppCompatActivity {
                     showErrorDialog("Registration attempt failed");
                 }else{
                     saveDisplayName();
+                    saveEmailAndPassword();
                     Intent i = new Intent(RegisterActivity.this, MainActivity.class);
                     finish();
                     startActivity(i);
@@ -152,6 +156,15 @@ public class RegisterActivity extends AppCompatActivity {
         String displayName = usernameText.getText().toString();
         SharedPreferences prefs = getSharedPreferences(LIST_PREFS,0);
         prefs.edit().putString(DISPLAY_NAME_KEY,displayName).apply();
+    }
+
+    private void saveEmailAndPassword(){
+        String email = emailText.getText().toString();
+        String password = passwordText.getText().toString();
+        Log.e("OurShoppingList",email+password);
+        SharedPreferences prefer = getSharedPreferences(DATA_PREFS,0);
+        prefer.edit().putString(EMAIL_KEY,email).apply();
+        prefer.edit().putString(PASSWORD_KEY,password).apply();
     }
 
     private void showErrorDialog(String message){
