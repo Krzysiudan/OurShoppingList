@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         button_register =(Button)findViewById(R.id.button_input);
 
         Log.e("OurShoppingList","Button refernces complited");
-        mAuth = FirebaseAuth.getInstance();
+
 
 
         passwordText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -89,20 +89,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void attemptLogin(){
         String email = emailText.getText().toString();
-        String password = emailText.getText().toString();
+        String password = passwordText.getText().toString();
 
         if(email.equals("")||password.equals("")) return;
         Toast.makeText(this,"Logging in progress",Toast.LENGTH_SHORT).show();
         mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                Log.e("OurShoppingList","SignInWithEmail onComplete"+task.isSuccessful());
+                Log.e("OurShoppingList","SignInWithEmail onComplete: "+task.isSuccessful());
 
                     if(!task.isSuccessful()){
                         Log.e("OurShoppingList","Problem singing in:"+task.getException());
                         showErrorDialog("There was a problem with singing in");
                     }else{
-                        Intent i = new Intent(MainActivity.this, ListActivity.class);
+                        Intent i = new Intent(MainActivity.this, com.krzysiudan.ourshoppinglist.ListActivity.class);
                         finish();
                         startActivity(i);
                     }

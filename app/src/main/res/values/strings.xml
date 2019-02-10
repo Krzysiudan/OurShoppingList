@@ -12,4 +12,10 @@
     <string name="button_register_register_activity">Register</string>
     <string name="username_hint">Username</string>
     <string name="action_sign_in_short">Sign in</string>
+    <string name="alert_textView">New shopping list</string>
+    <string name="alert_list_name">List name</string>
+    <string name="our_lists">Our Lists:</string>
+    <string name="button_to_add_list">Button to add list</string>
+    <string name="menu_rename">Rename</string>
+    <string name="menu_remove">Remove</string>
 </resources>
