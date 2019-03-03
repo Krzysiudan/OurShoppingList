@@ -18,4 +18,8 @@
     <string name="button_to_add_list">Button to add list</string>
     <string name="menu_rename">Rename</string>
     <string name="menu_remove">Remove</string>
+    <string name="items_to_buy">Items to buy:</string>
+    <string name="add_item">Add item</string>
+    <string name="add_new_item">Add new item..</string>
+    <string name="add_items">Add new items..</string>
 </resources>

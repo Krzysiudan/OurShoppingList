@@ -3,6 +3,7 @@ package com.krzysiudan.ourshoppinglist;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -72,13 +74,13 @@ public class ListActivity extends AppCompatActivity  {
                         if(!list_name.equals("")){
                             DatabaseReference listref = mDatabaseReference.child("ShoppingLists");
 
-                            listref.push().setValue(new ShoppingList(list_name));
+                            //listref.push().setValue(new ShoppingList(list_name));
 
-                            /*Map<String, Object> shoppingListMap = new HashMap<>();
+                            Map<String, Object> shoppingListMap = new HashMap<>();
                             shoppingListMap.put(list_name, new ShoppingList(list_name));
-                            Map<String, Object> mapa = new HashMap<>();
+
                             listref.updateChildren(shoppingListMap);
-*/
+
                         }
                     }
                 })
@@ -123,6 +125,20 @@ public class ListActivity extends AppCompatActivity  {
         mListAdapter = new ListAdapter(this,mDatabaseReference,"elo");
         mListView.setAdapter(mListAdapter);
 
+
+        mListView.setClickable(true);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.e("OurShoppingList","Postion on list cliked: " +i);
+                Intent intent = new Intent(ListActivity.this,ItemsActivity.class);
+                intent.putExtra("MotherListName", mListAdapter.getItem(i).getList_name());
+                mListAdapter.cleanUp();
+                finish();
+                startActivity(intent);
+                Log.e("OurShoppingList","Sth bad happening :(");
+            }
+        });
     }
 
     @Override

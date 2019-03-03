@@ -32,6 +32,10 @@
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait">
         </activity>
+        <activity android:name=".ItemsActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait">
+        </activity>
 
 
     </application>
