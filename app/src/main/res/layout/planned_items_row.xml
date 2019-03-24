@@ -37,7 +37,10 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:background="@null"/>
+            android:background="@null"
+            android:focusable="false"
+            android:clickable="false"
+            />
 
         <ImageButton
             android:id="@+id/imageButton3"
@@ -53,7 +56,10 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/baseline_more_vert_24"
             android:stackFromBottom="true"
-            android:transcriptMode="normal"/>
+            android:transcriptMode="normal"
+            android:focusable="false"
+            android:clickable="false"
+           />
 
     </android.support.constraint.ConstraintLayout>
 

@@ -30,12 +30,21 @@
 
         <activity android:name=".ListActivity"
             android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:parentActivityName=".MainActivity">
         </activity>
         <activity android:name=".ItemsActivity"
             android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:parentActivityName=".ListActivity">
         </activity>
+        <activity android:name=".ActivityMainItems"
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
+
+            android:parentActivityName=".ListActivity">
+        </activity>
+
 
 
     </application>

@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -26,13 +25,12 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AdapterItemList extends BaseAdapter {
+public class AdapterPlannedItemList extends BaseAdapter {
 
 
     private Activity mActivity;
@@ -73,11 +71,12 @@ public class AdapterItemList extends BaseAdapter {
         }
     };
 
-    public AdapterItemList(Activity activity, DatabaseReference ref,String motherList, String name){
+    public AdapterPlannedItemList(Activity activity, DatabaseReference ref, String motherList, String name){
         mActivity = activity;
         mDisplayName = name;
         mMotherList = motherList;
-        mDatabaseReferenceItems = ref.child("ShoppingLists").child(motherList).child("Items");
+        mDatabaseReferenceItems = ref.child("ShoppingLists").child(motherList).child(
+                "PlannedItems");
         mDatabaseReferenceItems.addChildEventListener(mListener);
 
 
@@ -89,6 +88,7 @@ public class AdapterItemList extends BaseAdapter {
         ImageButton mImageButton;
         LinearLayout.LayoutParams params;
     }
+
 
 
     @Override
@@ -112,7 +112,7 @@ public class AdapterItemList extends BaseAdapter {
         if(view==null){
             LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context
                     .LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(R.layout.items_row, viewGroup,false);
+            view = inflater.inflate(R.layout.planned_items_row, viewGroup,false);
             final ViewHolder holder = new ViewHolder();
             holder.body = (EditText) view.findViewById(R.id.single_list);
             rowEditText= holder.body;
@@ -138,10 +138,13 @@ public class AdapterItemList extends BaseAdapter {
                         int option = menuItem.getItemId();
                         switch (option){
                             case R.id.menu_rename:
+
                                 final String old_name = holder.body.getText().toString();
 
                                 Log.e("OurShoppingList","Options item clicked: rename");
                                 holder.body.setEnabled(true);
+                                holder.body.setClickable(true);
+                                holder.body.setFocusable(true);
                                 holder.body.requestFocus();
                                 holder.body.setSelection(holder.body.getText().toString().length());
                                 mActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
@@ -173,6 +176,7 @@ public class AdapterItemList extends BaseAdapter {
                                             listUpdate.put(key,new SingleItem(itemName, mDisplayName));
                                             mDatabaseReferenceItems.updateChildren(listUpdate);
 
+
                                             Log.e("OurShoppingList","Changes to listname");
 
                                             return true;
@@ -184,14 +188,7 @@ public class AdapterItemList extends BaseAdapter {
                             case R.id.menu_remove:
 
                                 int position = (Integer)holder.mImageButton.getTag();
-                                key= mSnapshotList.get(position).getKey();
-
-                                mDatabaseReferenceItems.child(key).removeValue();
-                                mSnapshotList.remove(position);
-                                notifyDataSetChanged();
-
-                                Log.e("OurShoppingList","Options item clicked: remove");
-
+                                removeItem(position);
                             default:
                                 return false;
                         }
@@ -205,11 +202,21 @@ public class AdapterItemList extends BaseAdapter {
         return view;
     }
 
+    public void removeItem (int position){
+        key= mSnapshotList.get(position).getKey();
+
+        mDatabaseReferenceItems.child(key).removeValue();
+        mSnapshotList.remove(position);
+        notifyDataSetChanged();
+
+    }
+
+
+
 
 
     public void cleanUp(){
         mDatabaseReferenceLists.removeEventListener(mListener);
     }
 
-    
 }

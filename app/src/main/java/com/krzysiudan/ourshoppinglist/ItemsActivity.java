@@ -1,36 +1,34 @@
 package com.krzysiudan.ourshoppinglist;
 
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class ItemsActivity extends AppCompatActivity {
 
     private ListView mListView;
     private DatabaseReference mDatabaseReference;
-    private AdapterItemList mListAdapter;
+    private AdapterPlannedItemList mListAdapter;
     private String mMotherList;
     private String mUsername;
     private TextInputEditText addItemEditText;
+    private Toolbar mToolbar;
 
 
 
@@ -47,15 +45,41 @@ public class ItemsActivity extends AppCompatActivity {
 
         mListView = (ListView) findViewById(R.id.list_view);
 
+       /* mToolbar = (Toolbar) findViewById(R.id.include_items);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        TextView mTitle = (TextView) mToolbar.findViewById(R.id.toolbar_title);
+        mTitle.setText("Products");
+
+
         SharedPreferences prefs = getSharedPreferences(RegisterActivity.LIST_PREFS,MODE_PRIVATE);
         mUsername = prefs.getString(RegisterActivity.DISPLAY_NAME_KEY,null);
         Log.e("OurShoppingList","working1");
+        */
 
 
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.clear();
+        getMenuInflater().inflate(R.menu.items_menu,menu);
+        return true;
+    }
 
-
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case android.R.id.home:
+                Intent intent = new Intent(this, ListActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
 
     }
 
@@ -64,7 +88,7 @@ public class ItemsActivity extends AppCompatActivity {
         super.onStart();
         Log.e("OurShoppingList","working2");
         Log.e("OurShoppingList",mUsername+" is my username");
-        mListAdapter = new AdapterItemList(this,mDatabaseReference,mMotherList,mUsername);
+        mListAdapter = new AdapterPlannedItemList(this,mDatabaseReference,mMotherList,mUsername);
         mListView.setAdapter(mListAdapter);
         Log.e("OurShoppingList","working3");
         addItemEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {

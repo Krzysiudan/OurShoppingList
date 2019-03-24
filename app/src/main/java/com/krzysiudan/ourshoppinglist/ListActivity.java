@@ -1,13 +1,16 @@
 package com.krzysiudan.ourshoppinglist;
 
-import android.app.Activity;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
@@ -32,10 +36,15 @@ import java.util.Map;
 
 public class ListActivity extends AppCompatActivity  {
 
+    public static final String MOTHER_NAME="mothername";
+    public static final String DATA = "data";
+
+
     private ListView mListView;
     private ImageButton newList;
     private DatabaseReference mDatabaseReference;
     private ListAdapter mListAdapter;
+    private Toolbar mToolbar;
 
 
     @Override
@@ -48,6 +57,14 @@ public class ListActivity extends AppCompatActivity  {
         newList = (ImageButton) findViewById(R.id.imageButton);
         mListView = (ListView) findViewById(R.id.list_view);
 
+        mToolbar = (Toolbar) findViewById(R.id.include2);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        TextView mTitle = (TextView) mToolbar.findViewById(R.id.toolbar_title);
+        mTitle.setText("Lists");
+
 
         newList.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,6 +74,9 @@ public class ListActivity extends AppCompatActivity  {
         });
 
     }
+
+
+
     private void addList(){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -96,29 +116,26 @@ public class ListActivity extends AppCompatActivity  {
     }
 
 
-
-   /* public void showPopup(View v){
-        PopupMenu popup = new PopupMenu(this, v);
-        popup.setOnMenuItemClickListener((PopupMenu.OnMenuItemClickListener) this);
-        popup.inflate(R.menu.popup);
-        popup.show();
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.clear();
+        getMenuInflater().inflate(R.menu.items_menu,menu);
+        return true;
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem menuItem) {
-        switch (menuItem.getItemId()){
-            case R.id.menu_rename:
-                Toast.makeText(this,"Item 1 clicked",Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.menu_remove:
-                Toast.makeText(this,"Item 2 clicked",Toast.LENGTH_SHORT).show();
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case android.R.id.home:
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
                 return true;
             default:
-                return false;
+                return super.onOptionsItemSelected(item);
         }
-    }
 
-*/
+    }
     @Override
     protected void onStart() {
         super.onStart();
@@ -130,8 +147,12 @@ public class ListActivity extends AppCompatActivity  {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.e("OurShoppingList","Postion on list cliked: " +i);
-                Intent intent = new Intent(ListActivity.this,ItemsActivity.class);
+                ;
+                Intent intent = new Intent(ListActivity.this,ActivityMainItems.class);
+                String motherListName = mListAdapter.getItem(i).getList_name();
+                //SharedPreferences mPreferences = getSharedPreferences(DATA,0);
+               // mPreferences.edit().putString(MOTHER_NAME,motherListName);
+                Log.e("OurShoppingList","Mother LIst name: "+mListAdapter.getItem(i).getList_name());
                 intent.putExtra("MotherListName", mListAdapter.getItem(i).getList_name());
                 mListAdapter.cleanUp();
                 finish();

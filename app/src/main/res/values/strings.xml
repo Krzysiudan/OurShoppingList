@@ -22,4 +22,7 @@
     <string name="add_item">Add item</string>
     <string name="add_new_item">Add new item..</string>
     <string name="add_items">Add new items..</string>
+    <string name="item">item</string>
+    <string name="toast_when_item_clicked_planned_tab">Item bought, now it\'s in the bought tab</string>
+    <string name="toast_when_item_clicked_bought_tab">Item returned to planned tab</string>
 </resources>
