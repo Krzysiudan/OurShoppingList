@@ -1,10 +1,9 @@
-package com.krzysiudan.ourshoppinglist;
+package com.krzysiudan.ourshoppinglist.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -12,6 +11,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import com.krzysiudan.ourshoppinglist.Adapters.FragmentPagerAdapterItems;
+import com.krzysiudan.ourshoppinglist.Fragments.FragmentPlannedItems;
+import com.krzysiudan.ourshoppinglist.R;
 
 public class ActivityMainItems extends AppCompatActivity {
 

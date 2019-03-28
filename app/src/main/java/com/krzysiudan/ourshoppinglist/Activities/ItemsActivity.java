@@ -1,4 +1,4 @@
-package com.krzysiudan.ourshoppinglist;
+package com.krzysiudan.ourshoppinglist.Activities;
 
 import android.content.Intent;
 import android.graphics.Paint;
@@ -19,6 +19,9 @@ import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.krzysiudan.ourshoppinglist.Adapters.AdapterPlannedItemList;
+import com.krzysiudan.ourshoppinglist.R;
+import com.krzysiudan.ourshoppinglist.DatabaseItems.SingleItem;
 
 public class ItemsActivity extends AppCompatActivity {
 

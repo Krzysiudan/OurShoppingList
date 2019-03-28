@@ -1,6 +1,5 @@
-package com.krzysiudan.ourshoppinglist;
+package com.krzysiudan.ourshoppinglist.Activities;
 
-import android.app.ListActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
@@ -8,7 +7,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -22,6 +20,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.krzysiudan.ourshoppinglist.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -102,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.e("OurShoppingList","Problem singing in:"+task.getException());
                         showErrorDialog("There was a problem with singing in");
                     }else{
-                        Intent i = new Intent(MainActivity.this, com.krzysiudan.ourshoppinglist.ListActivity.class);
+                        Intent i = new Intent(MainActivity.this, ListActivity.class);
                         finish();
                         startActivity(i);
                     }

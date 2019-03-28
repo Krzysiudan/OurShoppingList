@@ -1,35 +1,29 @@
-package com.krzysiudan.ourshoppinglist;
+package com.krzysiudan.ourshoppinglist.Activities;
 
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.krzysiudan.ourshoppinglist.Adapters.ListAdapter;
+import com.krzysiudan.ourshoppinglist.R;
+import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -94,20 +88,16 @@ public class ListActivity extends AppCompatActivity  {
                         if(!list_name.equals("")){
                             DatabaseReference listref = mDatabaseReference.child("ShoppingLists");
 
-                            //listref.push().setValue(new ShoppingList(list_name));
-
                             Map<String, Object> shoppingListMap = new HashMap<>();
                             shoppingListMap.put(list_name, new ShoppingList(list_name));
 
                             listref.updateChildren(shoppingListMap);
-
                         }
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-
                     }
                 })
                 .create()
@@ -150,14 +140,11 @@ public class ListActivity extends AppCompatActivity  {
                 ;
                 Intent intent = new Intent(ListActivity.this,ActivityMainItems.class);
                 String motherListName = mListAdapter.getItem(i).getList_name();
-                //SharedPreferences mPreferences = getSharedPreferences(DATA,0);
-               // mPreferences.edit().putString(MOTHER_NAME,motherListName);
                 Log.e("OurShoppingList","Mother LIst name: "+mListAdapter.getItem(i).getList_name());
                 intent.putExtra("MotherListName", mListAdapter.getItem(i).getList_name());
                 mListAdapter.cleanUp();
                 finish();
                 startActivity(intent);
-                Log.e("OurShoppingList","Sth bad happening :(");
             }
         });
     }

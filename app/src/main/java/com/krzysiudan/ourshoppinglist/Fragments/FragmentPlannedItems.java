@@ -1,8 +1,7 @@
-package com.krzysiudan.ourshoppinglist;
+package com.krzysiudan.ourshoppinglist.Fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
@@ -19,6 +18,10 @@ import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.krzysiudan.ourshoppinglist.Activities.RegisterActivity;
+import com.krzysiudan.ourshoppinglist.Adapters.AdapterPlannedItemList;
+import com.krzysiudan.ourshoppinglist.R;
+import com.krzysiudan.ourshoppinglist.DatabaseItems.SingleItem;
 
 public class FragmentPlannedItems extends Fragment {
 

@@ -1,14 +1,13 @@
-package com.krzysiudan.ourshoppinglist;
+package com.krzysiudan.ourshoppinglist.Adapters;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+
+import com.krzysiudan.ourshoppinglist.Fragments.FragmentBoughtItems;
+import com.krzysiudan.ourshoppinglist.Fragments.FragmentPlannedItems;
 
 public class FragmentPagerAdapterItems extends FragmentPagerAdapter {
 

@@ -1,4 +1,4 @@
-package com.krzysiudan.ourshoppinglist;
+package com.krzysiudan.ourshoppinglist.DatabaseItems;
 
 public class ShoppingList {
 

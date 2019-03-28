@@ -1,34 +1,23 @@
-package com.krzysiudan.ourshoppinglist;
+package com.krzysiudan.ourshoppinglist.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.InputType;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.krzysiudan.ourshoppinglist.R;
+import com.krzysiudan.ourshoppinglist.DatabaseItems.SingleItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AdapterBoughtItemList extends BaseAdapter {
     private Activity mActivity;
@@ -86,7 +75,6 @@ public class AdapterBoughtItemList extends BaseAdapter {
 
     }
 
-
     @Override
     public int getCount() {
         return mSnapshotList.size();
@@ -122,10 +110,6 @@ public class AdapterBoughtItemList extends BaseAdapter {
         holder.body.setText(itemName);
         position = i;
 
-
-
-
-
         return view;
     }
 
@@ -143,8 +127,6 @@ public class AdapterBoughtItemList extends BaseAdapter {
         mSnapshotList.clear();
         notifyDataSetChanged();
     }
-
-
 
     public void cleanUp(){
         mDatabaseReferenceItems.removeEventListener(mListener);

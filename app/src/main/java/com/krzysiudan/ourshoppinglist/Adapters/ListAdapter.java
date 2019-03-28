@@ -1,4 +1,4 @@
-package com.krzysiudan.ourshoppinglist;
+package com.krzysiudan.ourshoppinglist.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
@@ -25,23 +25,20 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
+import com.krzysiudan.ourshoppinglist.R;
+import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AdapterPlannedItemList extends BaseAdapter {
-
+public class ListAdapter extends BaseAdapter {
 
     private Activity mActivity;
-    private DatabaseReference mDatabaseReferenceLists;
-    private DatabaseReference mDatabaseReferenceItems;
+    private DatabaseReference mDatabaseReference;
     private String mDisplayName;
     private ArrayList<DataSnapshot> mSnapshotList;
-    private String mMotherList;
-    private String key;
-    private EditText rowEditText;
-    private int position;
 
     private ChildEventListener mListener = new ChildEventListener() {
         @Override
@@ -68,17 +65,15 @@ public class AdapterPlannedItemList extends BaseAdapter {
 
         @Override
         public void onCancelled(@NonNull DatabaseError databaseError) {
+
         }
     };
 
-    public AdapterPlannedItemList(Activity activity, DatabaseReference ref, String motherList, String name){
+    public ListAdapter(Activity activity, DatabaseReference ref, String name){
         mActivity = activity;
         mDisplayName = name;
-        mMotherList = motherList;
-        mDatabaseReferenceItems = ref.child("ShoppingLists").child(motherList).child(
-                "PlannedItems");
-        mDatabaseReferenceItems.addChildEventListener(mListener);
-
+        mDatabaseReference = ref.child("ShoppingLists");
+        mDatabaseReference.addChildEventListener(mListener);
 
         mSnapshotList = new ArrayList<>();
     }
@@ -90,16 +85,15 @@ public class AdapterPlannedItemList extends BaseAdapter {
     }
 
 
-
     @Override
     public int getCount() {
         return mSnapshotList.size();
     }
 
     @Override
-    public SingleItem getItem(int i) {
+    public ShoppingList getItem(int i) {
         DataSnapshot snapshot = mSnapshotList.get(i);
-        return snapshot.getValue(SingleItem.class);
+        return snapshot.getValue(ShoppingList.class);
     }
 
     @Override
@@ -108,24 +102,20 @@ public class AdapterPlannedItemList extends BaseAdapter {
     }
 
     @Override
-    public View getView( int i, View view, ViewGroup viewGroup) {
+    public View getView(final int i, View view, ViewGroup viewGroup) {
         if(view==null){
             LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context
                     .LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(R.layout.planned_items_row, viewGroup,false);
+            view =inflater.inflate(R.layout.list_row, viewGroup,false);
             final ViewHolder holder = new ViewHolder();
             holder.body = (EditText) view.findViewById(R.id.single_list);
-            rowEditText= holder.body;
             holder.mImageButton = (ImageButton) view.findViewById(R.id.imageButton3) ;
             view.setTag(holder);
         }
-
-        final SingleItem singleItem = getItem(i);
-        final ViewHolder holder =(ViewHolder) view.getTag();
-        final String itemName = singleItem.getName();
-        holder.body.setText(itemName);
-        holder.mImageButton.setTag(i);
-        position = i;
+        final ShoppingList list = getItem(i);
+        final ViewHolder holder = (ViewHolder) view.getTag();
+        final String list_name = list.getList_name();
+        holder.body.setText(list_name);
 
         holder.mImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,13 +128,9 @@ public class AdapterPlannedItemList extends BaseAdapter {
                         int option = menuItem.getItemId();
                         switch (option){
                             case R.id.menu_rename:
-
-                                final String old_name = holder.body.getText().toString();
-
+                                final String old_list = holder.body.getText().toString();
                                 Log.e("OurShoppingList","Options item clicked: rename");
                                 holder.body.setEnabled(true);
-                                holder.body.setClickable(true);
-                                holder.body.setFocusable(true);
                                 holder.body.requestFocus();
                                 holder.body.setSelection(holder.body.getText().toString().length());
                                 mActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
@@ -155,40 +141,34 @@ public class AdapterPlannedItemList extends BaseAdapter {
                                 holder.body.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                                     @Override
                                     public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                                        if(i==EditorInfo.IME_ACTION_DONE){
-                                            int position = (Integer)holder.mImageButton.getTag();
-                                            Log.e("OurShoppingList","Changes 2");
-                                            Log.e("OurShoppingList",
-                                                    "Valuuuuue i:"+position);
-                                            //what happens after input in edittext
-                                            InputMethodManager imm = (InputMethodManager)
-                                                    mActivity.getSystemService((Context
-                                                            .INPUT_METHOD_SERVICE));
-                                            imm.hideSoftInputFromWindow(textView.getWindowToken(),0);
-                                            holder.body.setInputType(InputType.TYPE_NULL);
-                                            holder.body.setEnabled(false);
-                                            String itemName = holder.body.getText().toString();
+                                            if(i==EditorInfo.IME_ACTION_DONE){
+                                                Log.e("OurShoppingList","Changes 2");
+                                                //what happens after input in edittext
+                                                InputMethodManager imm = (InputMethodManager)
+                                                        mActivity.getSystemService((Context
+                                                        .INPUT_METHOD_SERVICE));
+                                                imm.hideSoftInputFromWindow(textView.getWindowToken(),0);
+                                               holder.body.setInputType(InputType.TYPE_NULL);
+                                               holder.body.setEnabled(false);
+                                               final String listname = holder.body.getText().toString();
 
-                                            key= mSnapshotList.get(position).getKey();
-                                            Log.e("OurShoppingList","Key is: "+key);
+                                               changeName(old_list,listname);
 
-                                            Map<String, Object> listUpdate = new HashMap<>();
-                                            listUpdate.put(key,new SingleItem(itemName, mDisplayName));
-                                            mDatabaseReferenceItems.updateChildren(listUpdate);
+                                                   Log.e("OurShoppingList","Changes to listname");
 
-
-                                            Log.e("OurShoppingList","Changes to listname");
-
-                                            return true;
-                                        }
+                                                return true;
+                                            }
                                         return false;
                                     }
                                 });
                                 return true;
                             case R.id.menu_remove:
+                                removeList(holder.body.getText().toString());
+                                mSnapshotList.remove(i);
+                                notifyDataSetChanged();
 
-                                int position = (Integer)holder.mImageButton.getTag();
-                                removeItem(position);
+                                Log.e("OurShoppingList","Options item clicked: remove");
+
                             default:
                                 return false;
                         }
@@ -197,26 +177,62 @@ public class AdapterPlannedItemList extends BaseAdapter {
                 popup.show();
             }
         });
-
-
         return view;
     }
 
-    public void removeItem (int position){
-        key= mSnapshotList.get(position).getKey();
-
-        mDatabaseReferenceItems.child(key).removeValue();
-        mSnapshotList.remove(position);
-        notifyDataSetChanged();
-
-    }
-
-
-
-
-
     public void cleanUp(){
-        mDatabaseReferenceLists.removeEventListener(mListener);
+        mDatabaseReference.removeEventListener(mListener);
     }
 
+    private void changeName (String oldName, String newName){
+        final String new_name = newName;
+        mDatabaseReference.orderByChild("list_name")
+                .equalTo(oldName)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for(DataSnapshot childSnapshot: dataSnapshot.getChildren()){
+                            Log.e("OurShoppingList", "Changes in " + "OnDataChange");
+                             String listkey = childSnapshot.getKey();
+                            Map<String, Object> listUpdate = new HashMap<>();
+                            listUpdate.put(listkey,new ShoppingList(new_name));
+                            mDatabaseReference.updateChildren(listUpdate);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    private void removeList(String name){
+        mDatabaseReference.orderByChild("list_name")
+                .equalTo(name)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for(DataSnapshot
+                                childSnapshot:
+                                dataSnapshot.getChildren()){
+                            Log.e("OurShoppingList",
+                                    "Removed");
+                            String listkey =
+                                    childSnapshot
+                                            .getKey();
+                            mDatabaseReference.child(listkey).removeValue();
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+    }
 }
+
+
