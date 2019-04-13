@@ -117,8 +117,8 @@ public class FragmentBoughtItems extends Fragment {
         switch(item.getItemId()){
             case R.id.delete_items:
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setMessage("Do you want to delete all bought items?");
-                builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                builder.setMessage(R.string.dialog_in_bought_items);
+                builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         mListAdapter.removeAllItems();
@@ -126,7 +126,7 @@ public class FragmentBoughtItems extends Fragment {
 
                     }
                 });
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 

@@ -8,11 +8,12 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.krzysiudan.ourshoppinglist.Fragments.FragmentBoughtItems;
 import com.krzysiudan.ourshoppinglist.Fragments.FragmentPlannedItems;
+import com.krzysiudan.ourshoppinglist.R;
 
 public class FragmentPagerAdapterItems extends FragmentPagerAdapter {
 
     final int PAGE_COUNT =2;
-    private String tabTitles[] = new String[] {"Planned","Bought"};
+    private String tabTitles[] = new String[] {"Planowane","Kupione"};
     private String mMotherListName;
     private Context mContext;
 

@@ -48,7 +48,7 @@ public class ListActivity extends AppCompatActivity  {
 
         mDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
-        newList = (ImageButton) findViewById(R.id.imageButton);
+        newList = (ImageButton) findViewById(R.id.floatingActionButton);
         mListView = (ListView) findViewById(R.id.list_view);
 
         mToolbar = (Toolbar) findViewById(R.id.include2);
@@ -57,7 +57,7 @@ public class ListActivity extends AppCompatActivity  {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         TextView mTitle = (TextView) mToolbar.findViewById(R.id.toolbar_title);
-        mTitle.setText("Lists");
+        mTitle.setText(R.string.Title);
 
 
         newList.setOnClickListener(new View.OnClickListener() {
@@ -78,11 +78,10 @@ public class ListActivity extends AppCompatActivity  {
         final View alertView = inflater.inflate(R.layout.dialog_custom_add_list,null);
 
         builder.setView(alertView)
-                .setPositiveButton("Create", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        EditText alert_editText = (EditText) alertView.findViewById(R.id
-                                .alert_editText);
+                        EditText alert_editText = (EditText) alertView.findViewById(R.id.alert_editText);
                         String list_name = alert_editText.getText().toString();
 
                         if(!list_name.equals("")){
@@ -95,7 +94,7 @@ public class ListActivity extends AppCompatActivity  {
                         }
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                     }
@@ -137,7 +136,7 @@ public class ListActivity extends AppCompatActivity  {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                ;
+
                 Intent intent = new Intent(ListActivity.this,ActivityMainItems.class);
                 String motherListName = mListAdapter.getItem(i).getList_name();
                 Log.e("OurShoppingList","Mother LIst name: "+mListAdapter.getItem(i).getList_name());

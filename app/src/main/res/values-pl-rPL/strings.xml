@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="firsttime_activity_edittext">Wprowadź swój nick</string>
+    <string name="button_register">Rejestracja</string>
+    <string name="button_singin">Zaloguj</string>
+    <string name="textView_password">Hasło</string>
+    <string name="textView_Username_register_Activity">Pseudonim</string>
+    <string name="textView_password_register_Activity">Hasło</string>
+    <string name="textView_repeat_password_register_activity">Powtórz hasło</string>
+    <string name="button_register_register_activity">Zarejestruj</string>
+    <string name="username_hint">Nick</string>
+    <string name="action_sign_in_short">Zaloguj</string>
+    <string name="alert_textView">Nowa lista zakupów</string>
+    <string name="alert_list_name">Nazwa listy</string>
+    <string name="our_lists">Nasze listy</string>
+    <string name="button_to_add_list">Przycisk dodania listy</string>
+    <string name="menu_rename">Zmień nazwę</string>
+    <string name="menu_remove">Usuń</string>
+    <string name="items_to_buy">Do kupienia:</string>
+    <string name="add_item">Dodaj przedmiot</string>
+    <string name="add_new_item">Dodaj nowe przedmioty</string>
+    <string name="add_items">Dodaj nowe przedmioty..</string>
+    <string name="item">przedmiot</string>
+    <string name="toast_when_item_clicked_planned_tab">Przeniesiony do kupionych</string>
+    <string name="toast_when_item_clicked_bought_tab">Przeniesiony do planowanych</string>
+    <string name="app_name">Nasza lista zakupów</string>
+    <string name="planned">Planowane</string>
+    <string name="bought">Kupione</string>
+    <string name="Title">"Nasze listy zakupowe "</string>
+    <string name="logginginprogress">Logowanie w trakcie..</string>
+    <string name="toolbar_title">Tytuł paska</string>
+    <string name="products">Produkty</string>
+    <string name="dialog_in_bought_items">Czy chcesz usunąć wszystkie produkty?</string>
+    <string name="yes">tak</string>
+    <string name="no">anuluj</string>
+    <string name="create">Stwórz</string>
+    <string name="cancel">Anuluj</string>
+</resources>

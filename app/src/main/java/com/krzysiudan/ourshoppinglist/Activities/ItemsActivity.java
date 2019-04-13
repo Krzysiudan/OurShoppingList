@@ -48,21 +48,6 @@ public class ItemsActivity extends AppCompatActivity {
 
         mListView = (ListView) findViewById(R.id.list_view);
 
-       /* mToolbar = (Toolbar) findViewById(R.id.include_items);
-        setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        TextView mTitle = (TextView) mToolbar.findViewById(R.id.toolbar_title);
-        mTitle.setText("Products");
-
-
-        SharedPreferences prefs = getSharedPreferences(RegisterActivity.LIST_PREFS,MODE_PRIVATE);
-        mUsername = prefs.getString(RegisterActivity.DISPLAY_NAME_KEY,null);
-        Log.e("OurShoppingList","working1");
-        */
-
-
     }
 
     @Override

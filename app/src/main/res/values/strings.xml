@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">Our Shopping List</string>
-    <string name="firsttime_activity_edittext">Wprowadź pseudonim</string>
+    <string name="firsttime_activity_edittext">Enter your name</string>
     <string name="button_register">REGISTER</string>
     <string name="button_singin">SIGN IN</string>
     <string name="textView_password">Password</string>
-    <string name="textView_email">Email</string>
-    <string name="textView_email_register_activity">Email</string>
+    <string name="textView_email" translatable="false">Email</string>
+    <string name="textView_email_register_activity" translatable="false">Email</string>
     <string name="textView_Username_register_Activity">Username</string>
     <string name="textView_password_register_Activity">Password</string>
     <string name="textView_repeat_password_register_activity">Repeat password</string>
@@ -25,4 +25,15 @@
     <string name="item">item</string>
     <string name="toast_when_item_clicked_planned_tab">Item bought, now it\'s in the bought tab</string>
     <string name="toast_when_item_clicked_bought_tab">Item returned to planned tab</string>
+    <string name="Title">Our Shopping List</string>
+    <string name="planned">Planned</string>
+    <string name="bought">Bought</string>
+    <string name="logginginprogress">Logging in progress</string>
+    <string name="toolbar_title">Toolbar Title</string>
+    <string name="products">Products</string>
+    <string name="dialog_in_bought_items">Do you want to delete all bought items?</string>
+    <string name="yes">YES</string>
+    <string name="no">No</string>
+    <string name="create">Create</string>
+    <string name="cancel">Cancel</string>
 </resources>

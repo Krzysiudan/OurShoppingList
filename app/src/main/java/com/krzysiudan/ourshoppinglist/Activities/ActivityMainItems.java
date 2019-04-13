@@ -33,7 +33,7 @@ public class ActivityMainItems extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         TextView mTitle = (TextView) mToolbar.findViewById(R.id.toolbar_title);
-        mTitle.setText("Products");
+        mTitle.setText(R.string.products);
 
 
         motherListName = getIntent().getStringExtra("MotherListName");

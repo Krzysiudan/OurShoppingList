@@ -74,7 +74,6 @@ public class ListAdapter extends BaseAdapter {
         mDisplayName = name;
         mDatabaseReference = ref.child("ShoppingLists");
         mDatabaseReference.addChildEventListener(mListener);
-
         mSnapshotList = new ArrayList<>();
     }
 
@@ -104,8 +103,7 @@ public class ListAdapter extends BaseAdapter {
     @Override
     public View getView(final int i, View view, ViewGroup viewGroup) {
         if(view==null){
-            LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context
-                    .LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view =inflater.inflate(R.layout.list_row, viewGroup,false);
             final ViewHolder holder = new ViewHolder();
             holder.body = (EditText) view.findViewById(R.id.single_list);
@@ -126,36 +124,38 @@ public class ListAdapter extends BaseAdapter {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
                         int option = menuItem.getItemId();
+
                         switch (option){
                             case R.id.menu_rename:
                                 final String old_list = holder.body.getText().toString();
                                 Log.e("OurShoppingList","Options item clicked: rename");
                                 holder.body.setEnabled(true);
+                                holder.body.setInputType(InputType.TYPE_CLASS_TEXT);
+
+                                holder.body.setFocusableInTouchMode(true);
                                 holder.body.requestFocus();
                                 holder.body.setSelection(holder.body.getText().toString().length());
                                 mActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                                InputMethodManager immm = (InputMethodManager) mActivity
-                                        .getSystemService(mActivity.INPUT_METHOD_SERVICE);
-
+                                InputMethodManager immm = (InputMethodManager) mActivity.getSystemService(mActivity.INPUT_METHOD_SERVICE);
                                 immm.showSoftInput(holder.body,InputMethodManager.SHOW_IMPLICIT);
+
                                 holder.body.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                                     @Override
                                     public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                                             if(i==EditorInfo.IME_ACTION_DONE){
                                                 Log.e("OurShoppingList","Changes 2");
                                                 //what happens after input in edittext
-                                                InputMethodManager imm = (InputMethodManager)
-                                                        mActivity.getSystemService((Context
-                                                        .INPUT_METHOD_SERVICE));
+                                                InputMethodManager imm = (InputMethodManager) mActivity.getSystemService((Context.INPUT_METHOD_SERVICE));
                                                 imm.hideSoftInputFromWindow(textView.getWindowToken(),0);
+                                                holder.body.setFocusable(false);
                                                holder.body.setInputType(InputType.TYPE_NULL);
                                                holder.body.setEnabled(false);
+                                               holder.body.setClickable(false);
+
                                                final String listname = holder.body.getText().toString();
 
                                                changeName(old_list,listname);
-
-                                                   Log.e("OurShoppingList","Changes to listname");
-
+                                               Log.e("OurShoppingList","Changes to listname");
                                                 return true;
                                             }
                                         return false;
@@ -166,7 +166,6 @@ public class ListAdapter extends BaseAdapter {
                                 removeList(holder.body.getText().toString());
                                 mSnapshotList.remove(i);
                                 notifyDataSetChanged();
-
                                 Log.e("OurShoppingList","Options item clicked: remove");
 
                             default:
@@ -193,16 +192,14 @@ public class ListAdapter extends BaseAdapter {
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         for(DataSnapshot childSnapshot: dataSnapshot.getChildren()){
                             Log.e("OurShoppingList", "Changes in " + "OnDataChange");
-                             String listkey = childSnapshot.getKey();
+                            String listkey = childSnapshot.getKey();
                             Map<String, Object> listUpdate = new HashMap<>();
                             listUpdate.put(listkey,new ShoppingList(new_name));
                             mDatabaseReference.updateChildren(listUpdate);
                         }
                     }
-
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-
                     }
                 });
     }
@@ -214,18 +211,12 @@ public class ListAdapter extends BaseAdapter {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         for(DataSnapshot
-                                childSnapshot:
-                                dataSnapshot.getChildren()){
-                            Log.e("OurShoppingList",
-                                    "Removed");
-                            String listkey =
-                                    childSnapshot
-                                            .getKey();
+                                childSnapshot: dataSnapshot.getChildren()){
+                            Log.e("OurShoppingList", "Removed");
+                            String listkey = childSnapshot.getKey();
                             mDatabaseReference.child(listkey).removeValue();
-
                         }
                     }
-
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
 

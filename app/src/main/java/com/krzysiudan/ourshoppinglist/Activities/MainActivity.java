@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.krzysiudan.ourshoppinglist.R;
@@ -34,8 +35,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        FirebaseApp.initializeApp(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+
 
         Log.e("OurShoppingList","Application started");
 
@@ -82,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Toast.makeText(this,"OnResume Launched",Toast.LENGTH_SHORT).show();
         checkIfThereIsEmailAndPassword();
     }
 
@@ -91,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         String password = passwordText.getText().toString();
 
         if(email.equals("")||password.equals("")) return;
-        Toast.makeText(this,"Logging in progress",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.logginginprogress,Toast.LENGTH_SHORT).show();
         mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -122,8 +124,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void checkIfThereIsEmailAndPassword(){
-        String rememberedEmail ="";
-        String rememberedPassword="";
+        String rememberedEmail ;
+        String rememberedPassword;
 
         SharedPreferences prefer = getSharedPreferences(RegisterActivity.DATA_PREFS,MODE_PRIVATE);
         rememberedEmail = prefer.getString(RegisterActivity.EMAIL_KEY,null);
