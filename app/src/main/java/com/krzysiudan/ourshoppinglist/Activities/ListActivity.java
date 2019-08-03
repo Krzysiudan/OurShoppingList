@@ -5,13 +5,17 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -22,34 +26,36 @@ import android.widget.TextView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.krzysiudan.ourshoppinglist.Adapters.ListAdapter;
+import com.krzysiudan.ourshoppinglist.Adapters.ShoppingListAdapter;
+import com.krzysiudan.ourshoppinglist.Interfaces.RecyclerViewClickListener;
 import com.krzysiudan.ourshoppinglist.R;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ListActivity extends AppCompatActivity  {
+public class ListActivity extends AppCompatActivity   {
 
     public static final String MOTHER_NAME="mothername";
     public static final String DATA = "data";
 
 
-    private ListView mListView;
-    private ImageButton newList;
+    private RecyclerView  mRecyclerView;
+    private ImageButton newListButton;
     private DatabaseReference mDatabaseReference;
-    private ListAdapter mListAdapter;
+    private ShoppingListAdapter mRecyclerAdapter;
     private Toolbar mToolbar;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.list_activity);
+        setContentView(R.layout.activity_list_rv);
 
         mDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
-        newList = (ImageButton) findViewById(R.id.floatingActionButton);
-        mListView = (ListView) findViewById(R.id.list_view);
+        newListButton = (ImageButton) findViewById(R.id.floatingActionButton);
+        mRecyclerView = (RecyclerView) findViewById(R.id.ShoppingListrv);
 
         mToolbar = (Toolbar) findViewById(R.id.include2);
         setSupportActionBar(mToolbar);
@@ -60,7 +66,7 @@ public class ListActivity extends AppCompatActivity  {
         mTitle.setText(R.string.Title);
 
 
-        newList.setOnClickListener(new View.OnClickListener() {
+        newListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 addList();
@@ -128,29 +134,39 @@ public class ListActivity extends AppCompatActivity  {
     @Override
     protected void onStart() {
         super.onStart();
-        mListAdapter = new ListAdapter(this,mDatabaseReference,"elo");
-        mListView.setAdapter(mListAdapter);
+        mRecyclerAdapter = new ShoppingListAdapter(this,mDatabaseReference,"elo",this);
+        mRecyclerView.setAdapter(mRecyclerAdapter);
+
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 
-        mListView.setClickable(true);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mRecyclerView.setClickable(true);
+
+        mRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
+                return false;
+            }
 
-                Intent intent = new Intent(ListActivity.this,ActivityMainItems.class);
-                String motherListName = mListAdapter.getItem(i).getList_name();
-                Log.e("OurShoppingList","Mother LIst name: "+mListAdapter.getItem(i).getList_name());
-                intent.putExtra("MotherListName", mListAdapter.getItem(i).getList_name());
-                mListAdapter.cleanUp();
-                finish();
-                startActivity(intent);
+            @Override
+            public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
+
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean b) {
+
             }
         });
+
     }
 
     @Override
     protected void onStop() {
         super.onStop();
     }
+
+
 }
 

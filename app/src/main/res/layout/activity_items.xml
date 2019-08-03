@@ -72,7 +72,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
-            android:background="@drawable/plus"
+            android:background="@drawable/ic_round_add_circle_24px"
             android:padding="2dp" />
 
     </LinearLayout>

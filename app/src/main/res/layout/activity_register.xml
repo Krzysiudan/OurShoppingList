@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/activity_registerphoto">
+    android:background="@drawable/background_image_register_activity">
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/textInputLayout"

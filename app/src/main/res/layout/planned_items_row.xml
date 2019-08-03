@@ -54,7 +54,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/baseline_more_vert_24"
+            app:srcCompat="@drawable/ic_more_vert"
             android:stackFromBottom="true"
             android:transcriptMode="normal"
             android:focusable="false"
