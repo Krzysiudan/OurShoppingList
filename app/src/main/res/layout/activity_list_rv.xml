@@ -23,6 +23,7 @@
         android:layout_margin="16dp"
         android:src="@drawable/ic_round_add_24px"
         app:layout_anchor="@id/ShoppingListrv"
-        app:layout_anchorGravity="bottom|right|end" />
+        app:layout_anchorGravity="bottom|right|end"
+        app:layout_behavior=".Animations.ScrollAwareFABBehavior"/>
 
 </android.support.design.widget.CoordinatorLayout>

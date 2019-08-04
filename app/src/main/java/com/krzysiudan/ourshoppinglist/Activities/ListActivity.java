@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,10 +42,11 @@ public class ListActivity extends AppCompatActivity   {
 
 
     private RecyclerView  mRecyclerView;
-    private ImageButton newListButton;
+    private FloatingActionButton newListButton;
     private DatabaseReference mDatabaseReference;
     private ShoppingListAdapter mRecyclerAdapter;
     private Toolbar mToolbar;
+    private boolean fabShouldBeShown;
 
 
     @Override
@@ -54,7 +56,7 @@ public class ListActivity extends AppCompatActivity   {
 
         mDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
-        newListButton = (ImageButton) findViewById(R.id.floatingActionButton);
+        newListButton = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         mRecyclerView = (RecyclerView) findViewById(R.id.ShoppingListrv);
 
         mToolbar = (Toolbar) findViewById(R.id.include2);
@@ -72,6 +74,8 @@ public class ListActivity extends AppCompatActivity   {
                 addList();
             }
         });
+
+
 
     }
 
@@ -142,23 +146,8 @@ public class ListActivity extends AppCompatActivity   {
 
         mRecyclerView.setClickable(true);
 
-        mRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-            @Override
-            public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
-                return false;
-            }
-
-            @Override
-            public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
 
 
-            }
-
-            @Override
-            public void onRequestDisallowInterceptTouchEvent(boolean b) {
-
-            }
-        });
 
     }
 
