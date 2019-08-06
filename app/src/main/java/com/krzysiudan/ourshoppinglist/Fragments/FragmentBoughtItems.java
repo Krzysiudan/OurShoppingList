@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,15 +23,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.krzysiudan.ourshoppinglist.Activities.RegisterActivity;
 import com.krzysiudan.ourshoppinglist.Adapters.AdapterBoughtItemList;
+import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterBoughtItemsList;
 import com.krzysiudan.ourshoppinglist.R;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.SingleItem;
 
 public class FragmentBoughtItems extends Fragment {
     public static final String ARG_PAGE = "ARG_PAGE";
 
-    private ListView mListView;
+    private RecyclerView mRecyclerView;
     private DatabaseReference mDatabaseReference;
-    private AdapterBoughtItemList mListAdapter;
+    private RecyclerAdapterBoughtItemsList mRecyclerAdapter;
     private String mUsername;
     private String motherListName;
 
@@ -71,7 +74,7 @@ public class FragmentBoughtItems extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bought_items, container, false);
 
-        mListView = (ListView) view.findViewById(R.id.list_view);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
 
 
 
@@ -81,25 +84,11 @@ public class FragmentBoughtItems extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        mListAdapter = new AdapterBoughtItemList(getActivity(),mDatabaseReference,motherListName,
-                mUsername);
-        mListView.setAdapter(mListAdapter);
-
-
-        mListView.setClickable(true);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String newItem = mListAdapter.getItem(i).getName();
-                DatabaseReference boughtItemRef = mDatabaseReference.child("ShoppingLists")
-                        .child(motherListName).child("PlannedItems");
-                boughtItemRef.push().setValue(new SingleItem(newItem,mUsername));
-                mListAdapter.removeItem(i);
-                Toast.makeText(getContext(), R.string.toast_when_item_clicked_bought_tab,
-                        Toast.LENGTH_SHORT).show();
-
-            }
-        });
+        mRecyclerAdapter = new RecyclerAdapterBoughtItemsList(getActivity(), mUsername,motherListName,
+                mDatabaseReference);
+        mRecyclerView.setAdapter(mRecyclerAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerView.setClickable(true);
 
 
     }
@@ -121,7 +110,7 @@ public class FragmentBoughtItems extends Fragment {
                 builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        mListAdapter.removeAllItems();
+                        mRecyclerAdapter.removeAllItems();
                         Log.e("OurShoppingList","Button to remove all clicked");
 
                     }
