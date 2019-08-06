@@ -3,10 +3,8 @@ package com.krzysiudan.ourshoppinglist.Adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.service.autofill.TextValueSanitizer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.solver.widgets.Snapshot;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
@@ -18,13 +16,10 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -32,17 +27,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.krzysiudan.ourshoppinglist.Activities.ActivityMainItems;
-import com.krzysiudan.ourshoppinglist.Activities.ListActivity;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
 import com.krzysiudan.ourshoppinglist.Interfaces.RecyclerViewClickListener;
 import com.krzysiudan.ourshoppinglist.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapter.ViewHolder> {
+public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAdapterShoppingList.ViewHolder> {
 
 
     private Activity mActivity;
@@ -52,7 +45,7 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
     private Context context;
     private static RecyclerViewClickListener itemListener;
 
-    public ShoppingListAdapter(Activity activity, DatabaseReference ref, String name, Context context) {
+    public RecyclerAdapterShoppingList(Activity activity, DatabaseReference ref, String name, Context context) {
         mActivity = activity;
         mDisplayName = name;
         mDatabaseReference = ref.child("ShoppingLists");
@@ -126,7 +119,7 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
 
     @NonNull
     @Override
-    public ShoppingListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public RecyclerAdapterShoppingList.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         Context context = viewGroup.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 
@@ -138,7 +131,7 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ShoppingListAdapter.ViewHolder viewHolder, final int i) {
+    public void onBindViewHolder(@NonNull RecyclerAdapterShoppingList.ViewHolder viewHolder, final int i) {
         DataSnapshot snapshot = mSnapshotList.get(i);
         ShoppingList shoppingList = snapshot.getValue(ShoppingList.class);
 

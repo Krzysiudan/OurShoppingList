@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -20,14 +22,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.krzysiudan.ourshoppinglist.Activities.RegisterActivity;
 import com.krzysiudan.ourshoppinglist.Adapters.AdapterPlannedItemList;
+import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterPlannedItemList;
 import com.krzysiudan.ourshoppinglist.R;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.SingleItem;
 
 public class FragmentPlannedItems extends Fragment {
 
-    private ListView mListView;
+    private RecyclerView mRecyclerView;
     private DatabaseReference mDatabaseReference;
-    private AdapterPlannedItemList mListAdapter;
+    private RecyclerAdapterPlannedItemList mRecyclerAdapter;
     private String mUsername;
     private TextInputEditText addItemEditText;
     private String motherListName;
@@ -74,17 +77,26 @@ public class FragmentPlannedItems extends Fragment {
 
         addItemEditText = (TextInputEditText) view.findViewById(R.id.text_input_edit);
 
-        mListView = (ListView) view.findViewById(R.id.list_view);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
 
         return view;
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+
+
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
-
-        mListAdapter = new AdapterPlannedItemList(getActivity(),mDatabaseReference,motherListName,mUsername);
-        mListView.setAdapter(mListAdapter);
+        mRecyclerAdapter = new RecyclerAdapterPlannedItemList(getActivity(),mUsername,motherListName,mDatabaseReference);
+        mRecyclerView.setAdapter(mRecyclerAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerView.setClickable(true);
         addItemEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
@@ -102,25 +114,10 @@ public class FragmentPlannedItems extends Fragment {
         });
 
 
-        mListView.setClickable(true);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String newItem = mListAdapter.getItem(i).getName();
-                DatabaseReference boughtItemRef = mDatabaseReference.child("ShoppingLists")
-                        .child(motherListName).child("BoughtItems");
-                boughtItemRef.push().setValue(new SingleItem(newItem,mUsername));
-                mListAdapter.removeItem(i);
-                Toast.makeText(getContext(), R.string.toast_when_item_clicked_planned_tab,
-                        Toast.LENGTH_SHORT).show();
 
-            }
-        });
+
 
     }
-
-
-
 
 
 

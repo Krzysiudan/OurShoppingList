@@ -33,7 +33,7 @@
             android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity">
         </activity>
-        <activity android:name=".Activities.ItemsActivity"
+        <activity android:name=".Activities.ItemsActivity_old"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait"
             android:parentActivityName=".Activities.ListActivity">

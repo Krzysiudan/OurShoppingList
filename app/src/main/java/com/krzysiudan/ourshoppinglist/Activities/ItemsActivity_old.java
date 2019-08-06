@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -14,18 +15,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.krzysiudan.ourshoppinglist.Adapters.AdapterPlannedItemList;
+import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterPlannedItemList;
 import com.krzysiudan.ourshoppinglist.R;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.SingleItem;
 
-public class ItemsActivity extends AppCompatActivity {
+public class ItemsActivity_old extends AppCompatActivity {
 
-    private ListView mListView;
+    private RecyclerView mRecyclerView;
     private DatabaseReference mDatabaseReference;
     private AdapterPlannedItemList mListAdapter;
     private String mMotherList;
@@ -46,7 +47,7 @@ public class ItemsActivity extends AppCompatActivity {
 
         addItemEditText = (TextInputEditText) findViewById(R.id.text_input_edit);
 
-        mListView = (ListView) findViewById(R.id.list_view);
+        mRecyclerView = (RecyclerView) findViewById(R.id.list_view);
 
     }
 
@@ -76,8 +77,8 @@ public class ItemsActivity extends AppCompatActivity {
         super.onStart();
         Log.e("OurShoppingList","working2");
         Log.e("OurShoppingList",mUsername+" is my username");
-        mListAdapter = new AdapterPlannedItemList(this,mDatabaseReference,mMotherList,mUsername);
-        mListView.setAdapter(mListAdapter);
+        RecyclerAdapterPlannedItemList mRecyclerAdapter = new RecyclerAdapterPlannedItemList(this, mUsername, mMotherList, mDatabaseReference);
+        mRecyclerView.setAdapter(mRecyclerAdapter);
         Log.e("OurShoppingList","working3");
         addItemEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -94,15 +95,6 @@ public class ItemsActivity extends AppCompatActivity {
                 return false;
             }
         });
-
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                TextView text = (TextView) view;
-                text.setPaintFlags(text.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            }
-        });
-
 
     }
 }

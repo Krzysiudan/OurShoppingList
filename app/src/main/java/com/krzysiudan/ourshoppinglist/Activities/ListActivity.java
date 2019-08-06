@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -16,19 +15,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.krzysiudan.ourshoppinglist.Adapters.ListAdapter;
-import com.krzysiudan.ourshoppinglist.Adapters.ShoppingListAdapter;
-import com.krzysiudan.ourshoppinglist.Interfaces.RecyclerViewClickListener;
+import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterShoppingList;
 import com.krzysiudan.ourshoppinglist.R;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
 
@@ -44,7 +37,7 @@ public class ListActivity extends AppCompatActivity   {
     private RecyclerView  mRecyclerView;
     private FloatingActionButton newListButton;
     private DatabaseReference mDatabaseReference;
-    private ShoppingListAdapter mRecyclerAdapter;
+    private RecyclerAdapterShoppingList mRecyclerAdapter;
     private Toolbar mToolbar;
     private boolean fabShouldBeShown;
 
@@ -138,7 +131,7 @@ public class ListActivity extends AppCompatActivity   {
     @Override
     protected void onStart() {
         super.onStart();
-        mRecyclerAdapter = new ShoppingListAdapter(this,mDatabaseReference,"elo",this);
+        mRecyclerAdapter = new RecyclerAdapterShoppingList(this,mDatabaseReference,"elo",this);
         mRecyclerView.setAdapter(mRecyclerAdapter);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
