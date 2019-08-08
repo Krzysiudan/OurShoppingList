@@ -66,6 +66,18 @@
 
     </android.support.design.widget.TextInputLayout>
 
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/sign_in_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:paddingBottom="10dp">
+
+    </com.google.android.gms.common.SignInButton>
+
     <Button
         android:id="@+id/button_input"
         android:layout_width="0dp"
@@ -75,7 +87,7 @@
         android:layout_marginBottom="16dp"
         android:textColor="@color/primary_dark"
         android:text="@string/button_register"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/sign_in_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:padding="20dp"

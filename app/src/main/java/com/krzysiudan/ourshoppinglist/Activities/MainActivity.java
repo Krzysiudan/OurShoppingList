@@ -3,6 +3,7 @@ package com.krzysiudan.ourshoppinglist.Activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,12 +17,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.krzysiudan.ourshoppinglist.R;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,6 +38,11 @@ public class MainActivity extends AppCompatActivity {
     private EditText passwordText;
     private Button button_signin;
     private Button button_register;
+    private SignInButton signInButton;
+    private GoogleSignInClient mGoogleSignInClient;
+
+    private static int RC_SIGN_IN = 100;
+
 
 
     @Override
@@ -46,6 +58,23 @@ public class MainActivity extends AppCompatActivity {
         passwordText = (EditText) findViewById(R.id.textView_password);
         button_signin = (Button)findViewById(R.id.button_input2);
         button_register =(Button)findViewById(R.id.button_input);
+        signInButton = (SignInButton) findViewById(R.id.sign_in_button);
+
+        signInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()){
+                    case R.id.sign_in_button:
+                        signIn();
+                        break;
+                }
+            }
+        });
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         Log.e("OurShoppingList","Button refernces complited");
 
@@ -80,12 +109,58 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mAuth = FirebaseAuth.getInstance();
+
+
     }
+
+    private void signIn(){
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent,RC_SIGN_IN);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode ==RC_SIGN_IN){
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignedResault(task);
+        }
+    }
+
+    private void handleSignedResault(Task<GoogleSignInAccount> task) {
+        try{
+            GoogleSignInAccount account =task.getResult(ApiException.class);
+            updateUI(account);
+        }catch (ApiException e){
+            Log.e("OurShoppingList", "signInResult:failed code=" + e.getStatusCode());
+            updateUI(null);
+        }
+    }
+
 
     @Override
     protected void onResume() {
         super.onResume();
         checkIfThereIsEmailAndPassword();
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleSignInAccount account =  GoogleSignIn.getLastSignedInAccount(this);
+        updateUI(account);
+    }
+
+    private void updateUI(GoogleSignInAccount account) {
+        if (account==null){
+
+        }else{
+            Intent i = new Intent(MainActivity.this,RegisterActivity.class);
+            finish();
+            startActivity(i);
+        }
     }
 
     private void attemptLogin(){
