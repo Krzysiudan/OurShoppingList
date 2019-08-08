@@ -35,11 +35,6 @@
             android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity">
         </activity>
-        <activity android:name=".Activities.ItemsActivity_old"
-            android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".Activities.ListActivity">
-        </activity>
         <activity android:name=".Activities.ActivityMainItems"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait"

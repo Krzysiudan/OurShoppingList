@@ -2,10 +2,10 @@ package com.krzysiudan.ourshoppinglist.Activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -30,6 +30,8 @@ import com.krzysiudan.ourshoppinglist.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
@@ -40,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private Button button_register;
     private SignInButton signInButton;
     private GoogleSignInClient mGoogleSignInClient;
+
+
 
     private static int RC_SIGN_IN = 100;
 
@@ -60,21 +64,26 @@ public class MainActivity extends AppCompatActivity {
         button_register =(Button)findViewById(R.id.button_input);
         signInButton = (SignInButton) findViewById(R.id.sign_in_button);
 
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.e("OurShoppingList","signInButton clicked");
                 switch (v.getId()){
                     case R.id.sign_in_button:
+                        Log.e("OurShoppingList","correct case worked");
                         signIn();
                         break;
                 }
             }
         });
 
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         Log.e("OurShoppingList","Button refernces complited");
 
@@ -149,15 +158,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        GoogleSignInAccount account =  GoogleSignIn.getLastSignedInAccount(this);
-        updateUI(account);
+        String i = getIntent().getStringExtra("logout_key");
+        if(i==null){
+            GoogleSignInAccount account =  GoogleSignIn.getLastSignedInAccount(this);
+            updateUI(account);
+        }
+
     }
 
     private void updateUI(GoogleSignInAccount account) {
         if (account==null){
 
         }else{
-            Intent i = new Intent(MainActivity.this,RegisterActivity.class);
+            Intent i = new Intent(MainActivity.this, ListActivity.class);
             finish();
             startActivity(i);
         }

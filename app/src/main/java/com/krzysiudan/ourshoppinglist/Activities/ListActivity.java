@@ -5,12 +5,12 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.Nullable;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterShoppingList;
@@ -60,15 +61,12 @@ public class ListActivity extends AppCompatActivity   {
         TextView mTitle = (TextView) mToolbar.findViewById(R.id.toolbar_title);
         mTitle.setText(R.string.Title);
 
-
         newListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 addList();
             }
         });
-
-
 
     }
 
@@ -119,10 +117,26 @@ public class ListActivity extends AppCompatActivity   {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case android.R.id.home:
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Logout")
+                        .setMessage("Do you want to logout?")
+                        .setPositiveButton("Logout", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                FirebaseAuth.getInstance().signOut();
+                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                intent.putExtra("logout_key","Logout");
+                                startActivity(intent);
+                                Log.e("OurShoppingList","Dialog logout button clicked");
+                            }
+                        })
+                        .setNegativeButton("NO", null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
                 return true;
+
+
             default:
                 return super.onOptionsItemSelected(item);
         }

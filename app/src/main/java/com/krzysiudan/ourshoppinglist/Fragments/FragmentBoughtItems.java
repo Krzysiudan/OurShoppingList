@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,17 +15,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.krzysiudan.ourshoppinglist.Activities.RegisterActivity;
-import com.krzysiudan.ourshoppinglist.Adapters.AdapterBoughtItemList;
 import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterBoughtItemsList;
 import com.krzysiudan.ourshoppinglist.R;
-import com.krzysiudan.ourshoppinglist.DatabaseItems.SingleItem;
 
 public class FragmentBoughtItems extends Fragment {
     public static final String ARG_PAGE = "ARG_PAGE";
