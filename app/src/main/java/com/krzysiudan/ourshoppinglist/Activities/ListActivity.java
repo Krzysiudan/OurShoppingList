@@ -5,7 +5,15 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,6 +28,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterShoppingList;
@@ -118,6 +129,7 @@ public class ListActivity extends AppCompatActivity   {
         switch(item.getItemId()){
             case android.R.id.home:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
                 builder.setTitle("Logout")
                         .setMessage("Do you want to logout?")
                         .setPositiveButton("Logout", new DialogInterface.OnClickListener() {
@@ -150,13 +162,72 @@ public class ListActivity extends AppCompatActivity   {
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-
         mRecyclerView.setClickable(true);
 
+        //setting display name for users from google signin
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
+        if(acct!=null){
+            Log.e("OurShoppingList","User display name:"+ acct.getDisplayName());
+
+            String actualName = acct.getDisplayName();
+            if(actualName.equals(null)){
+               showSettingDisplayNameDialog();
+            }
+
+        }
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        //setting display name for users from normal signin
+        if(user!=null){
+            Log.e("OurShoppingList","User display name:"+ user.getDisplayName());
+
+            String actualName = user.getDisplayName();
+
+            if(actualName.equals(null)){
+               showSettingDisplayNameDialog();
+            }
+        }
+    }
 
 
+    private void showSettingDisplayNameDialog(){
+        LayoutInflater inflater = this.getLayoutInflater();
+        final View alertView = inflater.inflate(R.layout.dialog_custom_add_list,null);
+        final EditText alert_editText = (EditText) alertView.findViewById(R.id.alert_editText);
+        alert_editText.setHint("Write your name");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(alertView)
+                .setTitle("You are new!")
+                .setMessage("Set your display name")
+                .setPositiveButton("Set", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String name = alert_editText.getText().toString();
+                        updateDisplayName(name);
+
+                    }
+                })
+                .show();
 
     }
+    private void updateDisplayName(String name){
+        UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
+                .setDisplayName(name)
+                .build();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user.updateProfile(profileChangeRequest).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Log.e("OurShoppingList","User profile updated");
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    Log.e("OurShoppingList","User display name:"+ user.getDisplayName());
+                }
+            }
+        });
+
+    }
+
 
     @Override
     protected void onStop() {
