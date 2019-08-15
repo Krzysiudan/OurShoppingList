@@ -13,6 +13,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,6 +35,8 @@ import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterShoppingList;
 import com.krzysiudan.ourshoppinglist.R;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
@@ -44,8 +48,9 @@ public class ListActivity extends AppCompatActivity   {
 
     public static final String MOTHER_NAME="mothername";
     public static final String DATA = "data";
+    public static final String TAG = "OurShoppingList";
 
-
+    private FirebaseFirestore mFirestore;
     private RecyclerView  mRecyclerView;
     private FloatingActionButton newListButton;
     private DatabaseReference mDatabaseReference;
@@ -60,6 +65,7 @@ public class ListActivity extends AppCompatActivity   {
         setContentView(R.layout.activity_list_rv);
 
         mDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        mFirestore = FirebaseFirestore.getInstance();
 
         newListButton = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         mRecyclerView = (RecyclerView) findViewById(R.id.ShoppingListrv);
@@ -97,12 +103,25 @@ public class ListActivity extends AppCompatActivity   {
                         String list_name = alert_editText.getText().toString();
 
                         if(!list_name.equals("")){
-                            DatabaseReference listref = mDatabaseReference.child("ShoppingLists");
 
-                            Map<String, Object> shoppingListMap = new HashMap<>();
-                            shoppingListMap.put(list_name, new ShoppingList(list_name));
+                            Map<String, Object> list = new HashMap<>();
+                            list.put("list_name", list_name);
 
-                            listref.updateChildren(shoppingListMap);
+                            mFirestore.collection("ShoppingLists")
+                                    .add(list)
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                        @Override
+                                        public void onSuccess(DocumentReference documentReference) {
+                                            Log.e(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(TAG, "Error adding document",e);
+                                        }
+                                    });
+
                         }
                     }
                 })
@@ -157,7 +176,7 @@ public class ListActivity extends AppCompatActivity   {
     @Override
     protected void onStart() {
         super.onStart();
-        mRecyclerAdapter = new RecyclerAdapterShoppingList(this,mDatabaseReference,"elo",this);
+        mRecyclerAdapter = new RecyclerAdapterShoppingList(this,mFirestore,"elo",this);
         mRecyclerView.setAdapter(mRecyclerAdapter);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));

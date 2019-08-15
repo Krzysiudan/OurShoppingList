@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
@@ -26,6 +25,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.krzysiudan.ourshoppinglist.Activities.ActivityMainItems;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
 import com.krzysiudan.ourshoppinglist.Interfaces.RecyclerViewClickListener;
@@ -35,53 +41,65 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAdapterShoppingList.ViewHolder> {
 
+    public static final String TAG = "OurShoppingList";
 
     private Activity mActivity;
-    private DatabaseReference mDatabaseReference;
+    private FirebaseFirestore mFirestore;
+    private CollectionReference collectionReference;
     private String mDisplayName;
-    private ArrayList<DataSnapshot> mSnapshotList;
+    private ArrayList<QueryDocumentSnapshot> mSnapshotList;
     private Context context;
     private static RecyclerViewClickListener itemListener;
 
-    public RecyclerAdapterShoppingList(Activity activity, DatabaseReference ref, String name, Context context) {
+    public RecyclerAdapterShoppingList(Activity activity,FirebaseFirestore mFirestore, String name, Context context) {
         mActivity = activity;
         mDisplayName = name;
-        mDatabaseReference = ref.child("ShoppingLists");
-        mDatabaseReference.addChildEventListener(mListener);
+        this.mFirestore = mFirestore;
+
         mSnapshotList = new ArrayList<>();
         this.context = context;
+        collectionReference = mFirestore.collection("ShoppingLists");
+
+
+
+
+        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                if(e != null) {
+                    Log.w(TAG,"Listener on ShoppingLists error:",e);
+                    return;
+                }
+
+                for(DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()){
+                    switch (dc.getType()){
+                        case ADDED:
+                            Log.e(TAG,"New shoppinglist added" + dc.getDocument().getData());
+                            mSnapshotList.add(dc.getDocument());
+                            notifyDataSetChanged();
+                            //TODO change notifyDataSetCHanged to less global solution
+                            break;
+                        case MODIFIED:
+                            Log.e(TAG,"Shoppinglist edited " + dc.getDocument().getData());
+                            break;
+                        case REMOVED:
+                            Log.e(TAG,"Shoppinglist removed" + dc.getDocument().getData());
+                            mSnapshotList.remove(dc.getDocument());
+                            notifyDataSetChanged();
+                            //TODO change notifyDataSetCHanged to less global solution
+                            break;
+                    }
+                }
+            }
+        });
+
+
     }
 
-    private ChildEventListener mListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-            mSnapshotList.add(dataSnapshot);
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-        }
-
-        @Override
-        public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-            mSnapshotList.remove(dataSnapshot);
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-        }
-
-        @Override
-        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-        }
-    };
 
 
 
@@ -89,9 +107,9 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         public EditText nameTextView;
         public ImageButton mImageButton;
         Context context;
-        ArrayList<DataSnapshot> mSnapshotList;
+        ArrayList<QueryDocumentSnapshot> mSnapshotList;
 
-        public ViewHolder(View itemView, Context context, ArrayList<DataSnapshot> msnapshotlist) {
+        public ViewHolder(View itemView, Context context, ArrayList<QueryDocumentSnapshot> msnapshotlist) {
             super(itemView);
 
             nameTextView = (EditText) itemView.findViewById(R.id.single_list);
@@ -109,7 +127,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
             String motherListName = getItem(getAdapterPosition()).getList_name();
             Log.e("OurShoppingList","Mother LIst name: "+motherListName);
             intent.putExtra("MotherListName", motherListName);
-            cleanUp();
+            //cleanUp();
             context.startActivity(intent);
 
 
@@ -132,12 +150,16 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerAdapterShoppingList.ViewHolder viewHolder, final int i) {
-        DataSnapshot snapshot = mSnapshotList.get(i);
-        ShoppingList shoppingList = snapshot.getValue(ShoppingList.class);
-
+        QueryDocumentSnapshot snapshot= mSnapshotList.get(i);
         final EditText editText = viewHolder.nameTextView;
-        editText.setText(shoppingList.getList_name());
         final ImageButton imageButton = viewHolder.mImageButton;
+        if(snapshot.exists()){
+            ShoppingList shoppingList = snapshot.toObject(ShoppingList.class);
+            Log.e("OurShoppingList", "ShoppingList name:" +shoppingList.getList_name());
+            editText.setText(shoppingList.getList_name());
+        }
+
+
 
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -178,7 +200,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
                                             final String listname = editText.getText().toString();
 
-                                            changeName(old_list, listname);
+                                           // changeName(old_list, listname);
                                             Log.e("OurShoppingList", "Changes to listname");
                                             return true;
                                         }
@@ -187,7 +209,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                                 });
                                 return true;
                             case R.id.menu_remove:
-                                removeList(editText.getText().toString());
+                               // removeList(editText.getText().toString());
                                 mSnapshotList.remove(i);
                                 notifyDataSetChanged();
                                 Log.e("OurShoppingList", "Options item clicked: remove");
@@ -203,10 +225,10 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
             }
 
             public void cleanUp() {
-                mDatabaseReference.removeEventListener(mListener);
+                //TODO detach listener
             }
 
-            private void changeName(String oldName, String newName) {
+           /* private void changeName(String oldName, String newName) {
                 final String new_name = newName;
                 mDatabaseReference.orderByChild("list_name")
                         .equalTo(oldName)
@@ -252,7 +274,11 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         });
 
 
-    }
+    }*/
+
+
+        });
+    };
 
     @Override
     public int getItemCount() {
@@ -260,12 +286,6 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     }
 
     public ShoppingList getItem(int position) {
-        return mSnapshotList.get(position).getValue(ShoppingList.class);
-    }
-
-    public void cleanUp(){
-        mDatabaseReference.removeEventListener(mListener);
+        return mSnapshotList.get(position).toObject(ShoppingList.class);
     }
 }
-
-
