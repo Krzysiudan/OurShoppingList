@@ -142,6 +142,7 @@ public class RegisterActivity extends AppCompatActivity {
                 }else{
                     saveDisplayName();
                     saveEmailAndPassword();
+
                     Intent i = new Intent(RegisterActivity.this, MainActivity.class);
                     finish();
                     startActivity(i);

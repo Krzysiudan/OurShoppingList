@@ -36,6 +36,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterShoppingList;
 import com.krzysiudan.ourshoppinglist.R;
@@ -54,6 +55,7 @@ public class ListActivity extends AppCompatActivity   {
     private RecyclerView  mRecyclerView;
     private FloatingActionButton newListButton;
     private DatabaseReference mDatabaseReference;
+    private FirebaseAuth mAuth;
     private RecyclerAdapterShoppingList mRecyclerAdapter;
     private Toolbar mToolbar;
     private boolean fabShouldBeShown;
@@ -66,6 +68,48 @@ public class ListActivity extends AppCompatActivity   {
 
         mDatabaseReference = FirebaseDatabase.getInstance().getReference();
         mFirestore = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        final FirebaseUser user = mAuth.getCurrentUser();
+        String userUid;
+        final String userDisplayName ;
+
+        if(user!=null){
+            userUid = user.getUid();
+            Log.e(TAG,"User Uid :" + userUid);
+            userDisplayName = user.getDisplayName();
+            Log.e(TAG,"User display name :" + userDisplayName);
+            final DocumentReference userDocumentReference = mFirestore.collection("users").document(userUid);
+
+            userDocumentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if(task.isSuccessful()){
+                       DocumentSnapshot doc = task.getResult();
+                       if(doc.exists()){
+                           Log.e(TAG,"Document exist" + doc.getData());
+                       } else {
+                           Map<String, Object> userData = new HashMap<>();
+                           if (!userDisplayName.isEmpty()) {
+                               userData.put("display_name", userDisplayName);
+                               userDocumentReference.set(userData);
+                           }
+                       }
+                    } else {
+
+                        }
+
+
+                    }
+                });
+            }
+
+
+
+
+
+
+
+
 
         newListButton = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         mRecyclerView = (RecyclerView) findViewById(R.id.ShoppingListrv);
@@ -84,6 +128,10 @@ public class ListActivity extends AppCompatActivity   {
                 addList();
             }
         });
+
+
+
+
 
     }
 
@@ -183,7 +231,7 @@ public class ListActivity extends AppCompatActivity   {
 
         mRecyclerView.setClickable(true);
 
-        //setting display name for users from google signin
+        /*setting display name for users from google signin
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
         if(acct!=null){
             Log.e("OurShoppingList","User display name:"+ acct.getDisplayName());
@@ -193,7 +241,7 @@ public class ListActivity extends AppCompatActivity   {
                showSettingDisplayNameDialog();
             }
 
-        }
+        }*/
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         //setting display name for users from normal signin
