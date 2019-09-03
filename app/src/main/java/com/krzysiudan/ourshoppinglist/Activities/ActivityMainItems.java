@@ -19,7 +19,7 @@ import com.krzysiudan.ourshoppinglist.R;
 public class ActivityMainItems extends AppCompatActivity {
 
     private Toolbar mToolbar;
-    private String motherListName;
+    private String motherListKey;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,11 +36,11 @@ public class ActivityMainItems extends AppCompatActivity {
         mTitle.setText(R.string.products);
 
 
-        motherListName = getIntent().getStringExtra("MotherListName");
-        Log.e("OurShoppingList","MOTHERLISTNAME: "+motherListName);
+        motherListKey = getIntent().getStringExtra("MotherListName");
+        Log.e("OurShoppingList","MOTHERLISTKEY: "+motherListKey);
 
         Bundle bundle = new Bundle();
-        bundle.putString("MOTHER_LIST_NAME",motherListName);
+        bundle.putString("MOTHER_LIST_KEY",motherListKey);
         FragmentPlannedItems frag = new FragmentPlannedItems();
         frag.setArguments(bundle);
 
@@ -49,7 +49,7 @@ public class ActivityMainItems extends AppCompatActivity {
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         FragmentPagerAdapterItems mPagerAdapter =
                 new FragmentPagerAdapterItems(getSupportFragmentManager(),ActivityMainItems.this,
-                        motherListName);
+                        motherListKey);
         viewPager.setAdapter(mPagerAdapter);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);

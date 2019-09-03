@@ -4,6 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
     <include
         android:id="@+id/include2"
         layout="@layout/main_toolbar"
@@ -13,7 +18,9 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/ShoppingListrv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:layout_anchor="@id/include2"
+        app:layout_anchorGravity="bottom"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButton"
@@ -25,5 +32,6 @@
         app:layout_anchor="@id/ShoppingListrv"
         app:layout_anchorGravity="bottom|right|end"
         app:layout_behavior=".Animations.ScrollAwareFABBehavior"/>
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

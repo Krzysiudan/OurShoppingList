@@ -95,21 +95,10 @@ public class ListActivity extends AppCompatActivity   {
                            }
                        }
                     } else {
-
                         }
-
-
                     }
                 });
             }
-
-
-
-
-
-
-
-
 
         newListButton = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         mRecyclerView = (RecyclerView) findViewById(R.id.ShoppingListrv);
@@ -130,12 +119,7 @@ public class ListActivity extends AppCompatActivity   {
         });
 
 
-
-
-
     }
-
-
 
     private void addList(){
 
@@ -161,6 +145,7 @@ public class ListActivity extends AppCompatActivity   {
                                         @Override
                                         public void onSuccess(DocumentReference documentReference) {
                                             Log.e(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {

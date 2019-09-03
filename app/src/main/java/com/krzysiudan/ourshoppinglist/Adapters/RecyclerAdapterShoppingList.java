@@ -19,12 +19,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
+
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
@@ -55,7 +52,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     private Context context;
     private static RecyclerViewClickListener itemListener;
 
-    public RecyclerAdapterShoppingList(Activity activity,FirebaseFirestore mFirestore, String name, Context context) {
+    public RecyclerAdapterShoppingList(Activity activity, FirebaseFirestore mFirestore, String name, final Context context) {
         mActivity = activity;
         mDisplayName = name;
         this.mFirestore = mFirestore;
@@ -66,36 +63,42 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
 
 
-
         collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                Log.w(TAG,"SnapshotListener is working");
                 if(e != null) {
+                    Toast.makeText(context,"Error while loading",Toast.LENGTH_SHORT);
                     Log.w(TAG,"Listener on ShoppingLists error:",e);
                     return;
                 }
 
-                for(DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()){
-                    switch (dc.getType()){
-                        case ADDED:
-                            Log.e(TAG,"New shoppinglist added" + dc.getDocument().getData());
-                            mSnapshotList.add(dc.getDocument());
-                            notifyDataSetChanged();
-                            //TODO change notifyDataSetCHanged to less global solution
-                            break;
-                        case MODIFIED:
-                            Log.e(TAG,"Shoppinglist edited " + dc.getDocument().getData());
-                            break;
-                        case REMOVED:
-                            Log.e(TAG,"Shoppinglist removed" + dc.getDocument().getData());
-                            mSnapshotList.remove(dc.getDocument());
-                            notifyDataSetChanged();
-                            //TODO change notifyDataSetCHanged to less global solution
-                            break;
+
+                if(!queryDocumentSnapshots.isEmpty()) {
+                    for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                        switch (dc.getType()) {
+                            case ADDED:
+                                Log.w(TAG, "New shoppinglist ADDED" + dc.getDocument().getData());
+                                mSnapshotList.add(dc.getDocument());
+                                notifyItemInserted(mSnapshotList.size());
+                                //TODO change notifyDataSetCHanged to less global solution
+                                break;
+                            case MODIFIED:
+                                Log.w(TAG, "Shoppinglist MODIFIED: " + dc.getDocument().getData());
+                                break;
+                            case REMOVED:
+                                Log.w(TAG, "Shoppinglist REMOVED" + dc.getDocument().getData());
+                                int position = mSnapshotList.indexOf(dc.getDocument());
+                                mSnapshotList.remove(dc.getDocument());
+                                notifyItemRemoved(position);
+                                //TODO change notifyDataSetCHanged to less global solution
+                                break;
+                        }
                     }
                 }
             }
         });
+
 
 
     }
@@ -124,13 +127,11 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(context,ActivityMainItems.class);
-            String motherListName = getItem(getAdapterPosition()).getList_name();
-            Log.e("OurShoppingList","Mother LIst name: "+motherListName);
-            intent.putExtra("MotherListName", motherListName);
+            String motherListKey = mSnapshotList.get(getAdapterPosition()).getId();
+            Log.e("OurShoppingList","Mother LIst name: "+motherListKey);
+            intent.putExtra("MotherListName", motherListKey);
             //cleanUp();
             context.startActivity(intent);
-
-
         }
     }
 

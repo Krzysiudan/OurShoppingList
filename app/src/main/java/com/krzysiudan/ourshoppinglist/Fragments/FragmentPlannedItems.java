@@ -15,12 +15,19 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.krzysiudan.ourshoppinglist.Activities.RegisterActivity;
 import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterPlannedItemList;
 import com.krzysiudan.ourshoppinglist.R;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.SingleItem;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class FragmentPlannedItems extends Fragment {
 
@@ -29,7 +36,9 @@ public class FragmentPlannedItems extends Fragment {
     private RecyclerAdapterPlannedItemList mRecyclerAdapter;
     private String mUsername;
     private TextInputEditText addItemEditText;
-    private String motherListName;
+    private String motherListKey;
+    private FirebaseFirestore mFirestore;
+    private FirebaseAuth mFirebaseAuth;
 
     public static final String ARG_PAGE = "ARG_PAGE";
 
@@ -38,7 +47,7 @@ public class FragmentPlannedItems extends Fragment {
     public static FragmentPlannedItems newInstance(String text) {
         FragmentPlannedItems f = new FragmentPlannedItems();
         Bundle args = new Bundle();
-        args.putString("MOTHERLISTNAME", text);
+        args.putString("MOTHERLISTKEY", text);
         f.setArguments(args);
         return f;
     }
@@ -47,6 +56,8 @@ public class FragmentPlannedItems extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDatabaseReference= FirebaseDatabase.getInstance().getReference();
+        mFirestore = FirebaseFirestore.getInstance();
+        mFirebaseAuth = FirebaseAuth.getInstance();
 
         //SharedPreferences mPreferences = this.getActivity().getSharedPreferences(ListActivity.DATA, Context.MODE_PRIVATE);
         //motherListName = mPreferences.getString(ListActivity.MOTHER_NAME,null);
@@ -57,11 +68,11 @@ public class FragmentPlannedItems extends Fragment {
 
         if(getArguments()!=null){
             Bundle b = this.getArguments();
-            motherListName = b.getString("MOTHERLISTNAME");
+            motherListKey = b.getString("MOTHERLISTKEY");
 
         }
 
-        Log.e("OurShoppingList","MOTHER:" + motherListName);
+        Log.e("OurShoppingList","MOTHER:" + motherListKey);
 
 
     }
@@ -89,19 +100,22 @@ public class FragmentPlannedItems extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        mRecyclerAdapter = new RecyclerAdapterPlannedItemList(getActivity(),mUsername,motherListName,mDatabaseReference);
+        mRecyclerAdapter = new RecyclerAdapterPlannedItemList(getActivity(),motherListKey,mFirestore);
         mRecyclerView.setAdapter(mRecyclerAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setClickable(true);
+        final CollectionReference mCollectionReferencePlanned =mFirestore.collection("ShoppingLists").document(motherListKey).collection("Planned");
+
         addItemEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 if(i== EditorInfo.IME_ACTION_DONE){
                     String newItem = addItemEditText.getText().toString();
                     if(!newItem.equals("")){
-                        DatabaseReference itemRef = mDatabaseReference.child("ShoppingLists")
-                                .child(motherListName).child("PlannedItems");
-                        itemRef.push().setValue(new SingleItem(newItem,mUsername));
+                        Map<String,Object> data = new HashMap<>();
+                        data.put("name",newItem);
+                        data.put("author", mFirebaseAuth.getCurrentUser().getDisplayName());
+                        mCollectionReferencePlanned.add(data);
                         addItemEditText.setText("");
                     }
                 }

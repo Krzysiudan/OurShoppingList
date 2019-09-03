@@ -20,10 +20,19 @@ import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.SingleItem;
 import com.krzysiudan.ourshoppinglist.R;
 
@@ -33,25 +42,58 @@ import java.util.Map;
 
 public class RecyclerAdapterPlannedItemList extends RecyclerView.Adapter<RecyclerAdapterPlannedItemList.ViewHolder> {
 
-    private ArrayList<DataSnapshot> mSnapshotList;
+    public static final String TAG = "OurShoppingList";
+
+    private ArrayList<QueryDocumentSnapshot> mSnapshotList;
     private Activity mActivity;
-    private DatabaseReference mDatabaseReferenceItems;
-    private DatabaseReference mDatabaseReferenceLists;
+    private FirebaseFirestore mFirestore;
+    private CollectionReference mCollectionReferenceBought;
+    private CollectionReference mCollectionReferencePlanned;
     private String mDisplayName;
-    private String mMotherList;
+    private String mMotherListKey;
     private String key;
     private int position;
     private Context context;
 
-    public RecyclerAdapterPlannedItemList ( Activity activity, String name, String motherList, DatabaseReference ref){
+    public RecyclerAdapterPlannedItemList ( Activity activity,  String motherListKey, FirebaseFirestore mFirestore){
         mSnapshotList =new ArrayList<>();
         mActivity = activity;
-        mDisplayName = name;
-        mMotherList = motherList;
-        mDatabaseReferenceLists = ref.child("ShoppingLists");
-        mDatabaseReferenceItems = ref.child("ShoppingLists").child(motherList).child(
-                "PlannedItems");
-        mDatabaseReferenceItems.addChildEventListener(mListener);
+        this.mFirestore = mFirestore;
+        mMotherListKey = motherListKey;
+        Log.e(TAG,"MotherListKey in PlannedItems:"+mMotherListKey);
+
+        mCollectionReferenceBought = mFirestore.collection("ShoppingLists").document(mMotherListKey).collection("Bought");
+        mCollectionReferencePlanned =mFirestore.collection("ShoppingLists").document(mMotherListKey).collection("Planned");
+
+        mCollectionReferencePlanned.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                if(e != null) {
+                    Log.w(TAG,"Listener on PlannedItems error:",e);
+                    return;
+                }
+
+                for(DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()){
+                    switch (dc.getType()){
+                        case ADDED:
+                            Log.e(TAG,"New sign in planned item added" + dc.getDocument().getData());
+                            mSnapshotList.add(dc.getDocument());
+                            notifyItemInserted(mSnapshotList.size()-1);
+                            //TODO change notifyDataSetCHanged to less global solution
+                            break;
+                        case MODIFIED:
+                            Log.e(TAG,"Shoppinglist edited " + dc.getDocument().getData());
+                            break;
+                        case REMOVED:
+                            Log.e(TAG,"Shoppinglist removed" + dc.getDocument().getData());
+                            mSnapshotList.remove(dc.getDocument());
+                            notifyItemRemoved(mSnapshotList.size()-1);
+                            //TODO change notifyDataSetCHanged to less global solution
+                            break;
+                    }
+                }
+            }
+        });
 
     }
 
@@ -75,44 +117,32 @@ public class RecyclerAdapterPlannedItemList extends RecyclerView.Adapter<Recycle
 
         @Override
         public void onClick(View v) {
-            String newItemName = getItem(getAdapterPosition()).getName();
-            DatabaseReference boughtItemRef = mDatabaseReferenceLists.child(mMotherList).child("BoughtItems");
-            boughtItemRef.push().setValue(new SingleItem(newItemName,mDisplayName));
+            SingleItem item = getItem(getAdapterPosition());
+            final String key = mSnapshotList.get(getAdapterPosition()).getId();
+            mCollectionReferenceBought.add(item);
+            mCollectionReferencePlanned.document(key)
+                    .delete()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.e(TAG,"Item moved to bought, item in planned removed" + key);
+
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(TAG,"Deleting item failed" + key);
+                        }
+                    });
             removeItem(getAdapterPosition());
+            notifyItemRemoved(getAdapterPosition());
+
 
         }
     }
 
 
-
-
-    private ChildEventListener mListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-            mSnapshotList.add(dataSnapshot);
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-        }
-
-        @Override
-        public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-            mSnapshotList.remove(dataSnapshot);
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-        }
-
-        @Override
-        public void onCancelled(@NonNull DatabaseError databaseError) {
-        }
-    };
 
     @NonNull
     @Override
@@ -122,21 +152,23 @@ public class RecyclerAdapterPlannedItemList extends RecyclerView.Adapter<Recycle
 
         View plannedItemView = inflater.inflate(R.layout.planned_items_row, viewGroup, false);
 
-        ViewHolder viewHolder = new ViewHolder(plannedItemView);
-        return viewHolder;
+        return new ViewHolder(plannedItemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerAdapterPlannedItemList.ViewHolder viewHolder, int i) {
-        DataSnapshot snapshot = mSnapshotList.get(i);
-        SingleItem singleItem = snapshot.getValue(SingleItem.class);
+
+        QueryDocumentSnapshot snapshot = mSnapshotList.get(i);
 
         final EditText editText = viewHolder.editText;
-        editText.setText(singleItem.getName());
-
-        final String itemName = singleItem.getName();
-
         final ImageButton imageButton = viewHolder.button;
+
+        if(snapshot.exists()){
+            SingleItem mSingleItem = snapshot.toObject(SingleItem.class);
+            Log.e("OurShoppingList", "ShoppingList name:" +mSingleItem.getName());
+            final String itemName = mSingleItem.getName();
+            editText.setText(mSingleItem.getName());
+        }
         imageButton.setTag(i);
         position = i;
 
@@ -183,12 +215,12 @@ public class RecyclerAdapterPlannedItemList extends RecyclerView.Adapter<Recycle
                                             editText.setEnabled(false);
                                             String itemName = editText.getText().toString();
 
-                                            key= mSnapshotList.get(position).getKey();
+                                            key= mSnapshotList.get(position).toObject(SingleItem.class).getName();
                                             Log.e("OurShoppingList","Key is: "+key);
 
                                             Map<String, Object> listUpdate = new HashMap<>();
                                             listUpdate.put(key,new SingleItem(itemName, mDisplayName));
-                                            mDatabaseReferenceItems.updateChildren(listUpdate);
+                                           // mDatabaseReferenceItems.updateChildren(listUpdate);
 
 
                                             Log.e("OurShoppingList","Changes to listname");
@@ -214,19 +246,31 @@ public class RecyclerAdapterPlannedItemList extends RecyclerView.Adapter<Recycle
 
     }
 
+
     public void removeItem (int position){
-        key= mSnapshotList.get(position).getKey();
-
-        mDatabaseReferenceItems.child(key).removeValue();
+        key= mSnapshotList.get(position).toObject(SingleItem.class).getName();
+        mCollectionReferencePlanned.document(key)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting document", e);
+                    }
+                });
         mSnapshotList.remove(position);
-        notifyDataSetChanged();
+        notifyItemRemoved(position);
 
     }
-
-    public void cleanUp(){
-        mDatabaseReferenceItems.removeEventListener(mListener);
+/* TODO detach listener
+   public void cleanUp(){
     }
-
+*/
 
     @Override
     public int getItemCount() {
@@ -234,8 +278,8 @@ public class RecyclerAdapterPlannedItemList extends RecyclerView.Adapter<Recycle
     }
 
     public SingleItem getItem(int i) {
-        DataSnapshot snapshot = mSnapshotList.get(i);
-        return snapshot.getValue(SingleItem.class);
+        QueryDocumentSnapshot snapshot = mSnapshotList.get(i);
+        return snapshot.toObject(SingleItem.class);
     }
 
 

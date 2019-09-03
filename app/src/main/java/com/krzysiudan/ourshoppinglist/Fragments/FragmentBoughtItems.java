@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.krzysiudan.ourshoppinglist.Activities.RegisterActivity;
 import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterBoughtItemsList;
 import com.krzysiudan.ourshoppinglist.R;
@@ -29,14 +30,15 @@ public class FragmentBoughtItems extends Fragment {
     private DatabaseReference mDatabaseReference;
     private RecyclerAdapterBoughtItemsList mRecyclerAdapter;
     private String mUsername;
-    private String motherListName;
+    private String motherListKey;
+    private FirebaseFirestore mFirestore;
 
 
 
     public static FragmentBoughtItems newInstance(String text) {
         FragmentBoughtItems f = new FragmentBoughtItems();
         Bundle args = new Bundle();
-        args.putString("MOTHERLISTNAME",text);
+        args.putString("MOTHERLISTKEY",text);
         f.setArguments(args);
         return f;
     }
@@ -46,6 +48,7 @@ public class FragmentBoughtItems extends Fragment {
         super.onCreate(savedInstanceState);
 
         mDatabaseReference= FirebaseDatabase.getInstance().getReference();
+        mFirestore = FirebaseFirestore.getInstance();
 
         //SharedPreferences mPreferences = this.getActivity().getSharedPreferences(ListActivity.DATA, Context.MODE_PRIVATE);
         //motherListName = mPreferences.getString(ListActivity.MOTHER_NAME,null);
@@ -56,7 +59,7 @@ public class FragmentBoughtItems extends Fragment {
 
         if(getArguments()!=null){
             Bundle b = this.getArguments();
-            motherListName = b.getString("MOTHERLISTNAME");
+            motherListKey = b.getString("MOTHERLISTKEY");
 
         }
 
@@ -79,8 +82,7 @@ public class FragmentBoughtItems extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        mRecyclerAdapter = new RecyclerAdapterBoughtItemsList(getActivity(), mUsername,motherListName,
-                mDatabaseReference);
+        mRecyclerAdapter = new RecyclerAdapterBoughtItemsList(getActivity(),motherListKey, mFirestore);
         mRecyclerView.setAdapter(mRecyclerAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setClickable(true);
