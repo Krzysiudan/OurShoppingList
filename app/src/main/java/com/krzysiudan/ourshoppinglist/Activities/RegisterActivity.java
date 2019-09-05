@@ -18,10 +18,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.krzysiudan.ourshoppinglist.R;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -30,6 +37,7 @@ public class RegisterActivity extends AppCompatActivity {
     public static final String DATA_PREFS ="DataPrefs";
     public static final String EMAIL_KEY="EmailKey";
     public static final String PASSWORD_KEY="PasswordKey";
+    public static final String TAG = "RegisterActivityLog";
 
     private Button registerbutton;
     private AutoCompleteTextView usernameText;
@@ -92,7 +100,7 @@ public class RegisterActivity extends AppCompatActivity {
             focusView=passwordText;
             cancel=true;
         }else{
-            Log.e("OurShoppingList","Password is valid");
+            Log.e(TAG,"Password is valid");
         }
 
         //check for a valid email address
@@ -105,7 +113,7 @@ public class RegisterActivity extends AppCompatActivity {
             focusView=emailText;
             cancel=true;
         }else{
-            Log.e("OurShoppingList","Email is Valid");
+            Log.e(TAG,"Email is Valid");
         }
 
         if(cancel){
@@ -134,15 +142,31 @@ public class RegisterActivity extends AppCompatActivity {
                 new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                Log.e("OurShoppingList","create user onComplete:"+ task.isSuccessful());
+                Log.e(TAG,"create user onComplete:"+ task.isSuccessful());
 
                 if(!task.isSuccessful()){
-                    Log.e("OurShoppingList","Create user failed"+task.getException());
+                    Log.e(TAG,"Create user failed"+task.getException());
                     showErrorDialog("Registration attempt failed");
                 }else{
                     saveDisplayName();
                     saveEmailAndPassword();
+                    FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
+                    String displayName = usernameText.getText().toString();
+                    String userUid =task.getResult().getUser().getUid();
+                    Map<String,Object> userMap = new HashMap<>();
+                    userMap.put("display_name",displayName);
 
+                    mFirebaseFirestore.collection("users").document(userUid).set(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.e(TAG,"User added to collection");
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(TAG,"Failed to add user to collection");
+                        }
+                    });
                     Intent i = new Intent(RegisterActivity.this, MainActivity.class);
                     finish();
                     startActivity(i);
@@ -162,7 +186,7 @@ public class RegisterActivity extends AppCompatActivity {
     private void saveEmailAndPassword(){
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
-        Log.e("OurShoppingList",email+password);
+        Log.e(TAG,email+password);
         SharedPreferences prefer = getSharedPreferences(DATA_PREFS,0);
         prefer.edit().putString(EMAIL_KEY,email).apply();
         prefer.edit().putString(PASSWORD_KEY,password).apply();
