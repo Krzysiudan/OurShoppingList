@@ -3,7 +3,12 @@ package com.krzysiudan.ourshoppinglist.Fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -41,6 +46,7 @@ public class FragmentPlannedItems extends Fragment {
     private FirebaseAuth mFirebaseAuth;
 
     public static final String ARG_PAGE = "ARG_PAGE";
+    public static final String TAG ="FragmentPlannedItemsLog";
 
     private int mPage;
 
@@ -110,12 +116,18 @@ public class FragmentPlannedItems extends Fragment {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 if(i== EditorInfo.IME_ACTION_DONE){
-                    String newItem = addItemEditText.getText().toString();
+                    final String newItem = addItemEditText.getText().toString();
                     if(!newItem.equals("")){
-                        Map<String,Object> data = new HashMap<>();
-                        data.put("name",newItem);
-                        data.put("author", mFirebaseAuth.getCurrentUser().getDisplayName());
-                        mCollectionReferencePlanned.add(data);
+                        SingleItem mSingleItem = new SingleItem();
+                        mSingleItem.setAuthor(mFirebaseAuth.getCurrentUser().getDisplayName());
+                        mSingleItem.setName(newItem);
+                        mCollectionReferencePlanned.document(newItem).set(mSingleItem)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Log.d(TAG,"New item added: "+newItem);
+                            }
+                        });
                         addItemEditText.setText("");
                     }
                 }

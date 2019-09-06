@@ -173,7 +173,7 @@ public class AdapterPlannedItemList extends BaseAdapter {
                                             Log.e("OurShoppingList","Key is: "+key);
 
                                             Map<String, Object> listUpdate = new HashMap<>();
-                                            listUpdate.put(key,new SingleItem(itemName, mDisplayName));
+                                            //listUpdate.put(key,new SingleItem(itemName, mDisplayName));
                                             mDatabaseReferenceItems.updateChildren(listUpdate);
 
 

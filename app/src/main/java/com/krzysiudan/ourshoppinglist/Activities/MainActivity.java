@@ -22,17 +22,28 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.krzysiudan.ourshoppinglist.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static final String TAG = "MainActivityLog";
+
 
     private FirebaseAuth mAuth;
 
@@ -168,12 +179,47 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUI(GoogleSignInAccount account) {
         if (account==null){
+            Log.e("OurShoppingList","There is no google account");
 
         }else{
+            //checkIfUserIsInFirestore();
             Intent i = new Intent(MainActivity.this, ListActivity.class);
             finish();
             startActivity(i);
         }
+    }
+
+    private void checkIfUserIsInFirestore(){
+        final FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
+        final FirebaseUser mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        final String userUid = mFirebaseUser.getUid();
+        mFirebaseFirestore.collection("users").document(userUid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    DocumentSnapshot document = task.getResult();
+                    if(!document.exists()){
+                        Map<String,Object> userMap = new HashMap<>();
+                        userMap.put("display_name",mFirebaseUser.getDisplayName());
+                        FirebaseFirestore.getInstance().collection("users").document(userUid).set(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.e(TAG,"User added to collection");
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(TAG,"Failed to add user to collection");
+                            }
+                        });
+                    } else{
+                        Log.e(TAG,"There is a document in firestore");
+                    }
+                }else{
+                    Log.e(TAG,"Get failed with"+task.getException());
+                }
+            }
+        });
     }
 
     private void attemptLogin(){

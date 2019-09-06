@@ -31,6 +31,7 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.SingleItem;
@@ -65,7 +66,8 @@ public class RecyclerAdapterPlannedItemList extends RecyclerView.Adapter<Recycle
         mCollectionReferenceBought = mFirestore.collection("ShoppingLists").document(mMotherListKey).collection("Bought");
         mCollectionReferencePlanned =mFirestore.collection("ShoppingLists").document(mMotherListKey).collection("Planned");
 
-        mCollectionReferencePlanned.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        mCollectionReferencePlanned.orderBy("timestamp", Query.Direction.ASCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
                 if(e != null) {
@@ -118,31 +120,27 @@ public class RecyclerAdapterPlannedItemList extends RecyclerView.Adapter<Recycle
         @Override
         public void onClick(View v) {
             SingleItem item = getItem(getAdapterPosition());
+            final String name = item.getName();
             final String key = mSnapshotList.get(getAdapterPosition()).getId();
-            mCollectionReferenceBought.add(item);
-            mCollectionReferencePlanned.document(key)
+            mCollectionReferenceBought.document(name).set(item);
+            mCollectionReferencePlanned.document(name)
                     .delete()
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.e(TAG,"Item moved to bought, item in planned removed" + key);
+                            Log.e(TAG,"Item moved to bought, item in planned removed" + name);
 
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.e(TAG,"Deleting item failed" + key);
+                            Log.e(TAG,"Deleting item failed" + name);
                         }
                     });
             removeItem(getAdapterPosition());
-            notifyItemRemoved(getAdapterPosition());
-
-
         }
     }
-
-
 
     @NonNull
     @Override
@@ -219,7 +217,7 @@ public class RecyclerAdapterPlannedItemList extends RecyclerView.Adapter<Recycle
                                             Log.e("OurShoppingList","Key is: "+key);
 
                                             Map<String, Object> listUpdate = new HashMap<>();
-                                            listUpdate.put(key,new SingleItem(itemName, mDisplayName));
+                                            listUpdate.put(key,new SingleItem(itemName, mDisplayName,null));
                                            // mDatabaseReferenceItems.updateChildren(listUpdate);
 
 
@@ -281,6 +279,8 @@ public class RecyclerAdapterPlannedItemList extends RecyclerView.Adapter<Recycle
         QueryDocumentSnapshot snapshot = mSnapshotList.get(i);
         return snapshot.toObject(SingleItem.class);
     }
+
+
 
 
 }

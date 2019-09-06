@@ -1,14 +1,30 @@
 package com.krzysiudan.ourshoppinglist.DatabaseItems;
 
+import com.google.firebase.firestore.IgnoreExtraProperties;
+import com.google.firebase.firestore.ServerTimestamp;
+
+import java.util.Date;
+@IgnoreExtraProperties
 public class SingleItem {
 
     private String name;
     private String author;
 
+    public Date getTimestamp() {
+        return timestamp;
+    }
 
-    public SingleItem(String name, String author) {
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    private @ServerTimestamp Date timestamp;
+
+
+    public SingleItem(String name, String author, Date timestamp) {
         this.name = name;
         this.author = author;
+        this.timestamp = timestamp;
     }
 
     public SingleItem() {

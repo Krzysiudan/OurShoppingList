@@ -11,8 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
@@ -21,6 +23,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.SingleItem;
@@ -56,7 +59,8 @@ public class RecyclerAdapterBoughtItemsList extends RecyclerView.Adapter<Recycle
         mCollectionReferencePlanned =mFirestore.collection("ShoppingLists").document(mMotherListKey).collection("Planned");
 
 
-        mCollectionReferenceBought.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        mCollectionReferenceBought.orderBy("timestamp", Query.Direction.ASCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
                 if(e != null) {
@@ -70,7 +74,7 @@ public class RecyclerAdapterBoughtItemsList extends RecyclerView.Adapter<Recycle
                         case ADDED:
                             Log.e(TAG, "New shoppinglist added" + dc.getDocument().getData());
                             mSnapshotList.add(dc.getDocument());
-                            notifyDataSetChanged();
+                            notifyItemInserted(mSnapshotList.size()-1);
                             //TODO change notifyDataSetCHanged to less global solution
                             break;
                         case MODIFIED:
@@ -79,7 +83,6 @@ public class RecyclerAdapterBoughtItemsList extends RecyclerView.Adapter<Recycle
                         case REMOVED:
                             Log.e(TAG, "Shoppinglist removed" + dc.getDocument().getData());
                             mSnapshotList.remove(dc.getDocument());
-                            notifyDataSetChanged();
                             //TODO change notifyDataSetCHanged to less global solution
                             break;
                     }
@@ -111,9 +114,15 @@ public class RecyclerAdapterBoughtItemsList extends RecyclerView.Adapter<Recycle
         @Override
         public void onClick(View v) {
             SingleItem item = getItem(getAdapterPosition());
+            final String name = item.getName();
             mCollectionReferencePlanned.document(item.getName()).set(item);
+            mCollectionReferenceBought.document(item.getName()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    Log.w(TAG,"Item deleted: "+name);
+                }
+            });
             removeItem(getAdapterPosition());
-            notifyItemRemoved(getAdapterPosition());
 
         }
     }

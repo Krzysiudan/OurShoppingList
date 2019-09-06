@@ -251,22 +251,21 @@ public class ListActivity extends AppCompatActivity   {
                                         @Override
                                         public void onSuccess(DocumentReference documentReference) {
                                             Log.e(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                           Map<String,Object> userMap = new HashMap<>();
-                                           userMap.put("user_ID",userUid);
-                                            documentReference.collection("users_allowed").add(userMap)
-                                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                        @Override
-                                                        public void onSuccess(DocumentReference documentReference) {
-                                                            Log.e(TAG,"User added to shoppingList");
-                                                        }
-                                                    })
-                                                    .addOnFailureListener(new OnFailureListener() {
-                                                        @Override
-                                                        public void onFailure(@NonNull Exception e) {
-                                                            Log.e(TAG, "Failure in adding user to shoppingList");
-                                                        }
-                                                    });
-
+                                            Map<String,Object> userMap = new HashMap<>();
+                                            userMap.put("user_ID",userUid);
+                                            documentReference.collection("users_allowed").document(userUid)
+                                                    .set(userMap)
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                     public void onSuccess(Void aVoid) {
+                                                         Log.w(TAG, "User added to allowed users");
+                                                    }
+                                                  }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.w(TAG, "Error with adding user to allowed users",e);
+                                                }
+                                            });
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
@@ -275,9 +274,6 @@ public class ListActivity extends AppCompatActivity   {
                                             Log.w(TAG, "Error adding document",e);
                                         }
                                     });
-
-
-
                         }
                     }
                 })
@@ -303,11 +299,9 @@ public class ListActivity extends AppCompatActivity   {
                     Log.e(TAG,"User UID: "+ userUid);
                 }else{
                     Log.e(TAG,"We don't get a user :(");
-
                 }
             }
         };
-
     }
 
     @Override
@@ -318,7 +312,6 @@ public class ListActivity extends AppCompatActivity   {
             FirebaseAuth.getInstance().removeAuthStateListener(mAuthStateListener);
         }
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -344,14 +337,9 @@ public class ListActivity extends AppCompatActivity   {
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
                 return true;
-
-
             default:
                 return super.onOptionsItemSelected(item);
         }
-
     }
-
-
 }
 

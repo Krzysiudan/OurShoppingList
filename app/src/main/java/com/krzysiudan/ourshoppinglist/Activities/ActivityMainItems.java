@@ -2,6 +2,8 @@ package com.krzysiudan.ourshoppinglist.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.tabs.TabLayout;
 import androidx.viewpager.widget.ViewPager;
@@ -12,21 +14,33 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.krzysiudan.ourshoppinglist.Adapters.FragmentPagerAdapterItems;
 import com.krzysiudan.ourshoppinglist.Fragments.FragmentPlannedItems;
 import com.krzysiudan.ourshoppinglist.R;
 
 public class ActivityMainItems extends AppCompatActivity {
 
+    public static final String TAG = "ActivityMainItemsLog";
+
     private Toolbar mToolbar;
     private String motherListKey;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseAuth.getInstance().addAuthStateListener(mAuthStateListener);
+
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        setupFirebaseListener();
         mToolbar = (Toolbar) findViewById(R.id.include_items);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -80,5 +94,21 @@ public class ActivityMainItems extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    private void setupFirebaseListener(){
+        Log.e(TAG, "setupFirebaseListener: setting up the auth state listener");
+        mAuthStateListener= new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser mFirebaseUser = firebaseAuth.getCurrentUser();
+                if(mFirebaseUser !=null){
+                    String userUid = mFirebaseUser.getUid();
+                    Log.e(TAG,"User UID: "+ userUid);
+                }else{
+                    Log.e(TAG,"We don't get a user :(");
+                }
+            }
+        };
     }
 }
