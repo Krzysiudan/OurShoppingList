@@ -1,7 +1,9 @@
 package com.krzysiudan.ourshoppinglist.Adapters;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,6 +39,8 @@ import com.krzysiudan.ourshoppinglist.Activities.ActivityMainItems;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
 import com.krzysiudan.ourshoppinglist.Interfaces.RecyclerViewClickListener;
 import com.krzysiudan.ourshoppinglist.R;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -179,40 +183,9 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
                         switch (option) {
                             case R.id.menu_rename:
-                                final String old_list = editText.getText().toString();
-                                Log.e("OurShoppingList", "Options item clicked: rename");
-                                editText.setEnabled(true);
-                                editText.setInputType(InputType.TYPE_CLASS_TEXT);
+                                changeName(i);
 
-                                editText.setFocusableInTouchMode(true);
-                                editText.requestFocus();
-                                editText.setSelection(editText.getText().toString().length());
-                                mActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                                InputMethodManager immm = (InputMethodManager) mActivity.getSystemService(mActivity.INPUT_METHOD_SERVICE);
-                                immm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
-
-                                editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                                    @Override
-                                    public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                                        if (i == EditorInfo.IME_ACTION_DONE) {
-                                            Log.e("OurShoppingList", "Changes 2");
-                                            //what happens after input in edittext
-                                            InputMethodManager imm = (InputMethodManager) mActivity.getSystemService((Context.INPUT_METHOD_SERVICE));
-                                            imm.hideSoftInputFromWindow(textView.getWindowToken(), 0);
-                                            editText.setFocusable(false);
-                                            editText.setInputType(InputType.TYPE_NULL);
-                                            editText.setEnabled(false);
-                                            editText.setClickable(false);
-
-                                            final String listname = editText.getText().toString();
-
-                                            // changeName(old_list, listname);
-                                            Log.e("OurShoppingList", "Changes to listname");
-                                            return true;
-                                        }
-                                        return false;
-                                    }
-                                });
+                                Log.e(TAG, "Options item clicked: rename");
                                 return true;
                             case R.id.menu_remove:
                                 removeList(i);
@@ -238,35 +211,54 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                 //TODO detach listener
             }
 
-           /* private void changeName(String oldName, String newName) {
-                final String new_name = newName;
-                mDatabaseReference.orderByChild("list_name")
-                        .equalTo(oldName)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
+            private void changeName(final int position) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                LayoutInflater inflater = mActivity.getLayoutInflater();
+                final View alertView = inflater.inflate(R.layout.dialog_custom_add_list,null);
+
+//TODO add refreshing name after changing in database
+
+
+                builder.setView(alertView)
+                        .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
                             @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                                    Log.e("OurShoppingList", "Changes in " + "OnDataChange");
-                                    String listkey = childSnapshot.getKey();
-                                    Map<String, Object> listUpdate = new HashMap<>();
-                                    listUpdate.put(listkey, new ShoppingList(new_name));
-                                    mDatabaseReference.updateChildren(listUpdate);
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                EditText alert_editText = (EditText) alertView.findViewById(R.id.alert_editText);
+                                String list_name = alert_editText.getText().toString();
+                                TextView mTextView = alertView.findViewById(R.id.alert_textView);
+                                mTextView.setText(R.string.TextViewChangingListNameAlert);
+
+                                if(!list_name.equals("")){
+                                     final String key = mSnapshotList.get(position).getId();
+                                    DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("ShoppingLists").document(key);
+                                    mDocumentReference.update("list_name",list_name)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Log.d(TAG,"List name changed, list key: "+key);
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.d(TAG,"List name not changed, list key: "+key);
+
+                                                }
+                                            });
                                 }
+                                notifyItemChanged(position);
                             }
-
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                            public void onClick(DialogInterface dialogInterface, int i) {
                             }
-                        });
+                        })
+                        .create()
+                        .show();
+                Log.e("OurShoppingList","New list added");
+
             }
-
-                @Override
-
-
-
-*/
-
-
 
     public int getItemCount() {
         return mSnapshotList.size();
