@@ -75,7 +75,6 @@ public class RecyclerAdapterBoughtItemsList extends RecyclerView.Adapter<Recycle
                             Log.e(TAG, "New shoppinglist added" + dc.getDocument().getData());
                             mSnapshotList.add(dc.getDocument());
                             notifyItemInserted(mSnapshotList.size()-1);
-                            //TODO change notifyDataSetCHanged to less global solution
                             break;
                         case MODIFIED:
                             Log.e(TAG, "Shoppinglist edited " + dc.getDocument().getData());
@@ -83,7 +82,6 @@ public class RecyclerAdapterBoughtItemsList extends RecyclerView.Adapter<Recycle
                         case REMOVED:
                             Log.e(TAG, "Shoppinglist removed" + dc.getDocument().getData());
                             mSnapshotList.remove(dc.getDocument());
-                            //TODO change notifyDataSetCHanged to less global solution
                             break;
                     }
                 }

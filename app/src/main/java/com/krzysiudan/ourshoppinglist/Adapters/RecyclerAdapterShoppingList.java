@@ -22,8 +22,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -203,7 +206,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
                                             final String listname = editText.getText().toString();
 
-                                           // changeName(old_list, listname);
+                                            // changeName(old_list, listname);
                                             Log.e("OurShoppingList", "Changes to listname");
                                             return true;
                                         }
@@ -212,10 +215,10 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                                 });
                                 return true;
                             case R.id.menu_remove:
-                               // removeList(editText.getText().toString());
-                                mSnapshotList.remove(i);
-                                notifyDataSetChanged();
-                                Log.e("OurShoppingList", "Options item clicked: remove");
+                                removeList(i);
+                                Log.e(TAG, "Options item clicked: remove");
+                                return true;
+                            case R.id.menu_add_user:
 
                             default:
                                 return false;
@@ -226,6 +229,10 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
 
             }
+        });
+    }
+
+
 
             public void cleanUp() {
                 //TODO detach listener
@@ -253,42 +260,39 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                         });
             }
 
-            private void removeList(String name) {
-                mDatabaseReference.orderByChild("list_name")
-                        .equalTo(name)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                for (DataSnapshot
-                                        childSnapshot : dataSnapshot.getChildren()) {
-                                    Log.e("OurShoppingList", "Removed");
-                                    String listkey = childSnapshot.getKey();
-                                    mDatabaseReference.child(listkey).removeValue();
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-
-            }
-        });
+                @Override
 
 
-    }*/
+
+*/
 
 
-        });
-    };
 
-    @Override
     public int getItemCount() {
         return mSnapshotList.size();
     }
 
     public ShoppingList getItem(int position) {
         return mSnapshotList.get(position).toObject(ShoppingList.class);
+    }
+
+    public void removeList(int position){
+        final String key = mSnapshotList.get(position).getId();
+        DocumentReference docRef = FirebaseFirestore.getInstance().document("ShoppingLists/"+key);
+        docRef.delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG,"List with key: " + key + "has been removed");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG,"Failure removing list with key: " + key);
+
+                    }
+                });
+        mSnapshotList.remove(position);
     }
 }

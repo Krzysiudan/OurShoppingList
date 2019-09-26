@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/menu_add_user"
+        android:title="@string/add_user"
+        />
+
+    <item
         android:id="@+id/menu_rename"
         android:title="@string/menu_rename"
         />
@@ -9,5 +14,6 @@
         android:id="@+id/menu_remove"
         android:title="@string/menu_remove"
         />
+
 
 </menu>
