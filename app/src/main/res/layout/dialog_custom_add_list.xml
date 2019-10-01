@@ -11,8 +11,11 @@
         android:background="@color/primary"
         android:text="@string/alert_textView"
         android:paddingTop="20dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:textAlignment="center"
         android:scaleType="center"
+        android:textSize="20sp"
          />
     <EditText
         android:id="@+id/alert_editText"

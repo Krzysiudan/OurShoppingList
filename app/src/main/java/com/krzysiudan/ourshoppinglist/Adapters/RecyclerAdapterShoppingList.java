@@ -24,11 +24,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -90,17 +93,16 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                                 Log.w(TAG, "New shoppinglist ADDED" + dc.getDocument().getData());
                                 mSnapshotList.add(dc.getDocument());
                                 notifyItemInserted(mSnapshotList.size());
-                                //TODO change notifyDataSetCHanged to less global solution
                                 break;
                             case MODIFIED:
                                 Log.w(TAG, "Shoppinglist MODIFIED: " + dc.getDocument().getData());
+                                notifyDataSetChanged();
                                 break;
                             case REMOVED:
+                                int position= mSnapshotList.indexOf(dc.getDocument());
                                 Log.w(TAG, "Shoppinglist REMOVED" + dc.getDocument().getData());
-                                int position = mSnapshotList.indexOf(dc.getDocument());
                                 mSnapshotList.remove(dc.getDocument());
                                 notifyItemRemoved(position);
-                                //TODO change notifyDataSetCHanged to less global solution
                                 break;
                         }
                     }
@@ -212,11 +214,14 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
             }
 
             private void changeName(final int position) {
+                Log.e(TAG,"changeName method");
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 LayoutInflater inflater = mActivity.getLayoutInflater();
                 final View alertView = inflater.inflate(R.layout.dialog_custom_add_list,null);
+                TextView mTextView = alertView.findViewById(R.id.alert_textView);
+                mTextView.setText(R.string.TextViewChangingListNameAlert);
 
-//TODO add refreshing name after changing in database
+//TODO add refreshing name after changing in database, Zmienić dane w arraylist mSnapshotlist aby działało
 
 
                 builder.setView(alertView)
@@ -224,9 +229,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 EditText alert_editText = (EditText) alertView.findViewById(R.id.alert_editText);
-                                String list_name = alert_editText.getText().toString();
-                                TextView mTextView = alertView.findViewById(R.id.alert_textView);
-                                mTextView.setText(R.string.TextViewChangingListNameAlert);
+                                final String list_name = alert_editText.getText().toString();
 
                                 if(!list_name.equals("")){
                                      final String key = mSnapshotList.get(position).getId();
@@ -235,7 +238,13 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
-                                                    Log.d(TAG,"List name changed, list key: "+key);
+                                                    Log.e(TAG,"List name changed to: " + list_name +" , list key: "+key);
+                                                    mSnapshotList.remove(position);
+                                                    notifyItemRemoved(position);
+                                                    notifyItemInserted(position);
+                                                   // mSnapshotList.remove(position);
+                                                   // notifyItemRemoved(position);
+
                                                 }
                                             })
                                             .addOnFailureListener(new OnFailureListener() {
@@ -246,7 +255,6 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                                                 }
                                             });
                                 }
-                                notifyItemChanged(position);
                             }
                         })
                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -256,7 +264,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                         })
                         .create()
                         .show();
-                Log.e("OurShoppingList","New list added");
+
 
             }
 
