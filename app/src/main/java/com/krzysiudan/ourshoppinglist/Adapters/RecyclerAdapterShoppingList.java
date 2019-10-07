@@ -59,7 +59,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     private FirebaseFirestore mFirestore;
     private CollectionReference collectionReference;
     private String mDisplayName;
-    private ArrayList<QueryDocumentSnapshot> mSnapshotList;
+    private ArrayList<DocumentSnapshot> mSnapshotList;
     private Context context;
     private static RecyclerViewClickListener itemListener;
 
@@ -100,9 +100,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                                 break;
                             case REMOVED:
                                 int position= mSnapshotList.indexOf(dc.getDocument());
-                                Log.w(TAG, "Shoppinglist REMOVED" + dc.getDocument().getData());
-                                mSnapshotList.remove(dc.getDocument());
-                                notifyItemRemoved(position);
+                                Log.w(TAG, "Shoppinglist REMOVED" + dc.getDocument().getData()+" Position: "+position);
                                 break;
                         }
                     }
@@ -121,9 +119,9 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         public EditText nameTextView;
         public ImageButton mImageButton;
         Context context;
-        ArrayList<QueryDocumentSnapshot> mSnapshotList;
+        ArrayList<DocumentSnapshot> mSnapshotList;
 
-        public ViewHolder(View itemView, Context context, ArrayList<QueryDocumentSnapshot> msnapshotlist) {
+        public ViewHolder(View itemView, Context context, ArrayList<DocumentSnapshot> msnapshotlist) {
             super(itemView);
 
             nameTextView = (EditText) itemView.findViewById(R.id.single_list);
@@ -155,14 +153,13 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
         View shoppingView = inflater.inflate(R.layout.list_row, viewGroup, false);
 
-        ViewHolder viewHolder = new ViewHolder(shoppingView, context,mSnapshotList);
-        return viewHolder;
+        return new ViewHolder(shoppingView, context,mSnapshotList);
 
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerAdapterShoppingList.ViewHolder viewHolder, final int i) {
-        QueryDocumentSnapshot snapshot= mSnapshotList.get(i);
+    public void onBindViewHolder(@NonNull final RecyclerAdapterShoppingList.ViewHolder viewHolder,  int i) {
+        DocumentSnapshot snapshot= mSnapshotList.get(viewHolder.getAdapterPosition());
         final EditText editText = viewHolder.nameTextView;
         final ImageButton imageButton = viewHolder.mImageButton;
         if(snapshot.exists()){
@@ -176,6 +173,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
+                Log.e(TAG, "Options item clicked:  position : " +viewHolder.getLayoutPosition());
                 final PopupMenu popup = new PopupMenu(mActivity, imageButton);
                 popup.getMenuInflater().inflate(R.menu.popup, popup.getMenu());
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -185,13 +183,13 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
                         switch (option) {
                             case R.id.menu_rename:
-                                changeName(i);
+                                changeName(viewHolder.getLayoutPosition());
 
-                                Log.e(TAG, "Options item clicked: rename");
+                                Log.e(TAG, "Options item clicked: rename, position clicked : " +viewHolder.getLayoutPosition());
                                 return true;
                             case R.id.menu_remove:
-                                removeList(i);
-                                Log.e(TAG, "Options item clicked: remove");
+                                removeList(viewHolder.getLayoutPosition());
+                                Log.e(TAG, "Options item clicked: remove, position clicked : " +viewHolder.getLayoutPosition());
                                 return true;
                             case R.id.menu_add_user:
 
@@ -213,60 +211,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                 //TODO detach listener
             }
 
-            private void changeName(final int position) {
-                Log.e(TAG,"changeName method");
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                LayoutInflater inflater = mActivity.getLayoutInflater();
-                final View alertView = inflater.inflate(R.layout.dialog_custom_add_list,null);
-                TextView mTextView = alertView.findViewById(R.id.alert_textView);
-                mTextView.setText(R.string.TextViewChangingListNameAlert);
 
-//TODO add refreshing name after changing in database, Zmienić dane w arraylist mSnapshotlist aby działało
-
-
-                builder.setView(alertView)
-                        .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                EditText alert_editText = (EditText) alertView.findViewById(R.id.alert_editText);
-                                final String list_name = alert_editText.getText().toString();
-
-                                if(!list_name.equals("")){
-                                     final String key = mSnapshotList.get(position).getId();
-                                    DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("ShoppingLists").document(key);
-                                    mDocumentReference.update("list_name",list_name)
-                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void aVoid) {
-                                                    Log.e(TAG,"List name changed to: " + list_name +" , list key: "+key);
-                                                    mSnapshotList.remove(position);
-                                                    notifyItemRemoved(position);
-                                                    notifyItemInserted(position);
-                                                   // mSnapshotList.remove(position);
-                                                   // notifyItemRemoved(position);
-
-                                                }
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.d(TAG,"List name not changed, list key: "+key);
-
-                                                }
-                                            });
-                                }
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                            }
-                        })
-                        .create()
-                        .show();
-
-
-            }
 
     public int getItemCount() {
         return mSnapshotList.size();
@@ -276,14 +221,14 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         return mSnapshotList.get(position).toObject(ShoppingList.class);
     }
 
-    public void removeList(int position){
+    public void removeList(final int position){
         final String key = mSnapshotList.get(position).getId();
         DocumentReference docRef = FirebaseFirestore.getInstance().document("ShoppingLists/"+key);
         docRef.delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG,"List with key: " + key + "has been removed");
+                        Log.e(TAG,"List with key: " + key + "has been removed on position : " +position);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -293,6 +238,76 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
                     }
                 });
-        mSnapshotList.remove(position);
+                mSnapshotList.remove(position);
+                notifyItemRemoved(position);
     }
+
+    private void changeName(final int position) {
+        Log.e(TAG,"changeName method");
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = mActivity.getLayoutInflater();
+        final View alertView = inflater.inflate(R.layout.dialog_custom_add_list,null);
+        TextView mTextView = alertView.findViewById(R.id.alert_textView);
+        mTextView.setText(R.string.TextViewChangingListNameAlert);
+
+//TODO add refreshing name after changing in database, Zmienić dane w arraylist mSnapshotlist aby działało
+
+
+        builder.setView(alertView)
+                .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        EditText alert_editText = (EditText) alertView.findViewById(R.id.alert_editText);
+                        final String list_name = alert_editText.getText().toString();
+
+                        if(!list_name.equals("")){
+                            final String key = mSnapshotList.get(position).getId();
+                            final DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("ShoppingLists").document(key);
+                            mDocumentReference.update("list_name",list_name)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.e(TAG,"List name changed to: " + list_name +" , list key: "+key);
+                                            mDocumentReference
+                                                    .get()
+                                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                            if(task.isSuccessful()){
+                                                                DocumentSnapshot doc = task.getResult();
+                                                                if(doc.exists()){
+                                                                    Log.e(TAG, "changeName method : Document Snapshot exist ");
+                                                                    mSnapshotList.set(position,doc);
+                                                                    notifyItemChanged(position);
+                                                                } else {
+                                                                    Log.e(TAG, "changeName method : Document Snapshot not exist ");
+                                                                }
+                                                            } else {
+                                                                Log.e(TAG, "changeName method : get failed with : " + task.getException());
+                                                            }
+                                                        }
+                                                    });
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.d(TAG,"List name not changed, list key: "+key);
+
+                                        }
+                                    });
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    }
+                })
+                .create()
+                .show();
+
+
+    }
+
 }
