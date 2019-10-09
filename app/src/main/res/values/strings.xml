@@ -26,8 +26,6 @@
     <string name="toast_when_item_clicked_planned_tab">Item bought, now it\'s in the bought tab</string>
     <string name="toast_when_item_clicked_bought_tab">Item returned to planned tab</string>
     <string name="Title">Our Shopping List</string>
-    <string name="planned">Planned</string>
-    <string name="bought">Bought</string>
     <string name="logginginprogress">Logging in progress</string>
     <string name="toolbar_title">Toolbar Title</string>
     <string name="products">Products</string>
@@ -38,5 +36,8 @@
     <string name="cancel">Cancel</string>
     <string name="add_user">Add user</string>
     <string name="TextViewChangingListNameAlert">Choose new name</string>
+    <string name="bought">Bought</string>
+    <string name="planned">Planned</string>
+
 
 </resources>
