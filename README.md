@@ -6,3 +6,8 @@ There is a RecyclerView with list of a lists and after clicking on an item you h
 You can add lists and within the the list you can add, change and remove multiple items. Right now all data is avaiable for all users.
 App is not completed yet, I am planning to add more features after improving my skills. 
 
+This is how my app looks like:
+![alt text](https://raw.githubusercontent.com/Krzysiudan/OurShoppingList/blob/master/docs/screenshots/Bought.PNG
+)
+
+
