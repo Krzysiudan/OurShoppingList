@@ -7,22 +7,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import android.text.InputType;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -42,14 +36,7 @@ import com.krzysiudan.ourshoppinglist.Activities.ActivityMainItems;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
 import com.krzysiudan.ourshoppinglist.Interfaces.RecyclerViewClickListener;
 import com.krzysiudan.ourshoppinglist.R;
-
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.annotation.Nullable;
 
 public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAdapterShoppingList.ViewHolder> {
 
@@ -184,15 +171,14 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                         switch (option) {
                             case R.id.menu_rename:
                                 changeName(viewHolder.getLayoutPosition());
-
                                 Log.e(TAG, "Options item clicked: rename, position clicked : " +viewHolder.getLayoutPosition());
                                 return true;
                             case R.id.menu_remove:
                                 removeList(viewHolder.getLayoutPosition());
                                 Log.e(TAG, "Options item clicked: remove, position clicked : " +viewHolder.getLayoutPosition());
                                 return true;
-                            case R.id.menu_add_user:
-
+                           // case R.id.menu_add_user:
+                                //addUser(viewHolder.getLayoutPosition());
                             default:
                                 return false;
                         }
@@ -221,7 +207,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         return mSnapshotList.get(position).toObject(ShoppingList.class);
     }
 
-    public void removeList(final int position){
+    private void removeList(final int position){
         final String key = mSnapshotList.get(position).getId();
         DocumentReference docRef = FirebaseFirestore.getInstance().document("ShoppingLists/"+key);
         docRef.delete()
@@ -242,6 +228,84 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                 notifyItemRemoved(position);
     }
 
+    private String getUserId (String userName){
+        final String[] userId = new String[1];
+        CollectionReference mCollectionReference = mFirestore.collection("users");
+        mCollectionReference
+                .whereEqualTo("display_name", userName)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for(QueryDocumentSnapshot document: task.getResult()){
+                                userId[0] = document.getId();
+                                Log.d(TAG, "User exist, id: " + userId[0]);
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting user: " + task.getException());
+                            userId[0] ="";
+                        }
+                    }
+                });
+        return userId[0];
+    }
+
+
+   /* private void addUser(final int position){
+        final String key = mSnapshotList.get(position).getId();
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = mActivity.getLayoutInflater();
+        final View alertView = inflater.inflate(R.layout.dialog_custom_add_list,null);
+        TextView mTextView = alertView.findViewById(R.id.alert_textView);
+        mTextView.setText(R.string.alert_dialog_share_list);
+
+        builder.setView(alertView)
+                .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        EditText alert_editText = (EditText) alertView.findViewById(R.id.alert_editText);
+                        final String userName = alert_editText.getText().toString();
+                        final String userId = getUserId(userName);
+
+                        if(!userName.equals("")){
+                            if(userId.equals("")){
+                                final DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("ShoppingLists").document(key).collection("users_allowed").document(userId);
+                                Map<String, Object> data = new HashMap<>();
+                                data.put("user_ID",userName);
+                                mDocumentReference
+                                        .set(data)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "User added successfully :" +userName);
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.d(TAG, "Error adding user : " + e);
+                                            }
+                                        });
+                            }
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    }
+                })
+                .create()
+                .show();
+
+
+
+
+        DocumentReference docRef = FirebaseFirestore.getInstance().document("ShoppingLists/"+key+"");
+
+    }
+*/
     private void changeName(final int position) {
         Log.e(TAG,"changeName method");
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
