@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,8 +57,6 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         this.context = context;
         collectionReference = mFirestore.collection("ShoppingLists");
 
-
-
         collectionReference.orderBy("timestamp", Query.Direction.ASCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -99,25 +98,39 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public EditText nameEditView;
-        public ImageButton mImageButtonPopupMenu;
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,PopupMenu.OnMenuItemClickListener  {
+        private EditText nameEditView;
+        private ImageButton mImageButtonPopupMenu;
+        private LinearLayout mLinearLayout;
         Context context;
         ArrayList<DocumentSnapshot> mSnapshotList;
 
-        public ViewHolder(View itemView, Context context, ArrayList<DocumentSnapshot> msnapshotlist) {
+        private ViewHolder( View itemView, Context context, ArrayList<DocumentSnapshot> mSnapshotList) {
             super(itemView);
-
+            mLinearLayout = itemView.findViewById(R.id.singleMessageContainer);
             nameEditView = (EditText) itemView.findViewById(R.id.single_list);
             mImageButtonPopupMenu = (ImageButton) itemView.findViewById(R.id.imageButton3);
             this.context = context;
-            this.mSnapshotList = msnapshotlist;
+            this.mSnapshotList = mSnapshotList;
             itemView.setOnClickListener(this);
+            mImageButtonPopupMenu.setOnClickListener(this);
 
         }
 
         @Override
         public void onClick(View v) {
+            switch (v.getId()){
+                case R.id.singleMessageContainer:
+                    startingNewActivityAfterClickingParticularRow();
+                    break;
+                case R.id.imageButton3:
+                    createPopupMenu(v);
+                    break;
+
+            }
+        }
+
+        private void startingNewActivityAfterClickingParticularRow(){
             Intent intentStartActivityMainItems = new Intent(context,ActivityMainItems.class);
             String motherListKey = getMotherListKey();
             intentStartActivityMainItems.putExtra("MotherListName", motherListKey);
@@ -129,6 +142,34 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
             logMessage("Mother list key: "+motherListKey);
             return motherListKey;
 
+        }
+
+        private void createPopupMenu(View view){
+            PopupMenu mPopupMenu = new PopupMenu(mActivity,view);
+            mPopupMenu.getMenuInflater().inflate(R.menu.popup,mPopupMenu.getMenu());
+            mPopupMenu.setOnMenuItemClickListener(this);
+            mPopupMenu.show();
+
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item){
+            int option = item.getItemId();
+//TODO try to use getLayoutPosition , last time it was working better
+            switch (option) {
+                case R.id.menu_rename:
+                    changeName(getAdapterPosition());
+                    Log.e(TAG, "Options item clicked: rename, position clicked : " +getAdapterPosition());
+                    return true;
+                case R.id.menu_remove:
+                    removeList(getAdapterPosition());
+                    Log.e(TAG, "Options item clicked: remove, position clicked : " +getAdapterPosition());
+                    return true;
+                case R.id.menu_add_new_user:
+                    //addUser(viewHolder.getLayoutPosition());
+                default:
+                    return false;
+            }
         }
     }
 
@@ -146,49 +187,14 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
     @Override
     public void onBindViewHolder(@NonNull final RecyclerAdapterShoppingList.ViewHolder viewHolder, int i) {
-        DocumentSnapshot snapshot= mSnapshotList.get(viewHolder.getAdapterPosition());
+        DocumentSnapshot snapshot = mSnapshotList.get(viewHolder.getAdapterPosition());
         final EditText editTextNameOfAList = viewHolder.nameEditView;
         final ImageButton imageButton = viewHolder.mImageButtonPopupMenu;
 
-        if(snapshot.exists()){
+        if (snapshot.exists()) {
             String listName = getListNameFrom(snapshot);
             editTextNameOfAList.setText(listName);
         }
-
-
-
-        imageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                Log.e(TAG, "Options item clicked:  position : " +viewHolder.getLayoutPosition());
-                final PopupMenu popup = new PopupMenu(mActivity, imageButton);
-                popup.getMenuInflater().inflate(R.menu.popup, popup.getMenu());
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem menuItem) {
-                        int option = menuItem.getItemId();
-
-                        switch (option) {
-                            case R.id.menu_rename:
-                                changeName(viewHolder.getLayoutPosition());
-                                Log.e(TAG, "Options item clicked: rename, position clicked : " +viewHolder.getLayoutPosition());
-                                return true;
-                            case R.id.menu_remove:
-                                removeList(viewHolder.getLayoutPosition());
-                                Log.e(TAG, "Options item clicked: remove, position clicked : " +viewHolder.getLayoutPosition());
-                                return true;
-                           case R.id.menu_add_new_user:
-                                //addUser(viewHolder.getLayoutPosition());
-                            default:
-                                return false;
-                        }
-                    }
-                });
-                popup.show();
-
-
-            }
-        });
     }
 
     private String getListNameFrom(DocumentSnapshot snapshot){
@@ -210,9 +216,6 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         logMessage("ShoppingList name: "+listName);
         return listName;
     }
-
-
-
 
             public void cleanUp() {
                 //TODO detach listener
