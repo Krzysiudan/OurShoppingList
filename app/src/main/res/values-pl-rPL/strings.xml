@@ -37,4 +37,5 @@
     <string name="cancel">Anuluj</string>
     <string name="TextViewChangingListNameAlert">Wybierz nowe imię</string>
     <string name="add_user">"Dodaj użytkownika "</string>
+    <string name="share">Udostępnij</string>
 </resources>

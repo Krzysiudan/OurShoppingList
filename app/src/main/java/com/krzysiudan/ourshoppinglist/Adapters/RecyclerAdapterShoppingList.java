@@ -34,11 +34,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.krzysiudan.ourshoppinglist.Activities.ActivityMainItems;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
-import com.krzysiudan.ourshoppinglist.Interfaces.RecyclerViewClickListener;
 import com.krzysiudan.ourshoppinglist.R;
 import java.util.ArrayList;
 
-public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAdapterShoppingList.ViewHolder> {
+public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAdapterShoppingList.ViewHolder>  {
 
     public static final String TAG = "OurShoppingList";
 
@@ -48,13 +47,11 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     private String mDisplayName;
     private ArrayList<DocumentSnapshot> mSnapshotList;
     private Context context;
-    private static RecyclerViewClickListener itemListener;
 
     public RecyclerAdapterShoppingList(Activity activity, FirebaseFirestore mFirestore, String name, final Context context) {
         mActivity = activity;
         mDisplayName = name;
         this.mFirestore = mFirestore;
-
         mSnapshotList = new ArrayList<>();
         this.context = context;
         collectionReference = mFirestore.collection("ShoppingLists");
@@ -103,31 +100,35 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public EditText nameTextView;
-        public ImageButton mImageButton;
+        public EditText nameEditView;
+        public ImageButton mImageButtonPopupMenu;
         Context context;
         ArrayList<DocumentSnapshot> mSnapshotList;
 
         public ViewHolder(View itemView, Context context, ArrayList<DocumentSnapshot> msnapshotlist) {
             super(itemView);
 
-            nameTextView = (EditText) itemView.findViewById(R.id.single_list);
-            mImageButton = (ImageButton) itemView.findViewById(R.id.imageButton3);
+            nameEditView = (EditText) itemView.findViewById(R.id.single_list);
+            mImageButtonPopupMenu = (ImageButton) itemView.findViewById(R.id.imageButton3);
             this.context = context;
             this.mSnapshotList = msnapshotlist;
             itemView.setOnClickListener(this);
 
         }
 
-
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(context,ActivityMainItems.class);
+            Intent intentStartActivityMainItems = new Intent(context,ActivityMainItems.class);
+            String motherListKey = getMotherListKey();
+            intentStartActivityMainItems.putExtra("MotherListName", motherListKey);
+            context.startActivity(intentStartActivityMainItems);
+        }
+
+        private String getMotherListKey(){
             String motherListKey = mSnapshotList.get(getAdapterPosition()).getId();
-            Log.e("OurShoppingList","Mother LIst name: "+motherListKey);
-            intent.putExtra("MotherListName", motherListKey);
-            //cleanUp();
-            context.startActivity(intent);
+            logMessage("Mother list key: "+motherListKey);
+            return motherListKey;
+
         }
     }
 
@@ -137,22 +138,21 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     public RecyclerAdapterShoppingList.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         Context context = viewGroup.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-
         View shoppingView = inflater.inflate(R.layout.list_row, viewGroup, false);
 
-        return new ViewHolder(shoppingView, context,mSnapshotList);
+        return new ViewHolder(shoppingView, context, mSnapshotList);
 
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final RecyclerAdapterShoppingList.ViewHolder viewHolder,  int i) {
+    public void onBindViewHolder(@NonNull final RecyclerAdapterShoppingList.ViewHolder viewHolder, int i) {
         DocumentSnapshot snapshot= mSnapshotList.get(viewHolder.getAdapterPosition());
-        final EditText editText = viewHolder.nameTextView;
-        final ImageButton imageButton = viewHolder.mImageButton;
+        final EditText editTextNameOfAList = viewHolder.nameEditView;
+        final ImageButton imageButton = viewHolder.mImageButtonPopupMenu;
+
         if(snapshot.exists()){
-            ShoppingList shoppingList = snapshot.toObject(ShoppingList.class);
-            Log.e("OurShoppingList", "ShoppingList name:" +shoppingList.getList_name());
-            editText.setText(shoppingList.getList_name());
+            String listName = getListNameFrom(snapshot);
+            editTextNameOfAList.setText(listName);
         }
 
 
@@ -177,7 +177,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                                 removeList(viewHolder.getLayoutPosition());
                                 Log.e(TAG, "Options item clicked: remove, position clicked : " +viewHolder.getLayoutPosition());
                                 return true;
-                           // case R.id.menu_add_user:
+                           case R.id.menu_add_new_user:
                                 //addUser(viewHolder.getLayoutPosition());
                             default:
                                 return false;
@@ -190,6 +190,27 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
             }
         });
     }
+
+    private String getListNameFrom(DocumentSnapshot snapshot){
+        ShoppingList mShoppingList = getShoppingListFrom(snapshot);
+        return getListName(mShoppingList);
+    }
+
+    private ShoppingList getShoppingListFrom(DocumentSnapshot snapshot){
+        return  snapshot.toObject(ShoppingList.class);
+    }
+
+    private String getListName(ShoppingList shoppingList){
+        String listName;
+        try{
+            listName = shoppingList.getList_name();
+        }catch (NullPointerException e ){
+            listName = "none";
+        }
+        logMessage("ShoppingList name: "+listName);
+        return listName;
+    }
+
 
 
 
@@ -245,11 +266,13 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                         } else {
                             Log.d(TAG, "Error getting user: " + task.getException());
                             userId[0] ="";
+
                         }
                     }
                 });
         return userId[0];
     }
+
 
 
    /* private void addUser(final int position){
@@ -372,6 +395,10 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                 .show();
 
 
+    }
+
+    private void logMessage(String log){
+        Log.d(TAG,log);
     }
 
 }

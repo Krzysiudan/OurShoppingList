@@ -38,6 +38,7 @@
     <string name="TextViewChangingListNameAlert">Choose new name</string>
     <string name="bought">Bought</string>
     <string name="planned">Planned</string>
+    <string name="share">Share</string>
 
 
 </resources>
