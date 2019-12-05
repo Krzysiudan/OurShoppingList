@@ -68,7 +68,6 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                     return;
                 }
 
-
                 if(!queryDocumentSnapshots.isEmpty()) {
                     for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                         switch (dc.getType()) {
@@ -90,13 +89,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                 }
             }
         });
-
-
-
     }
-
-
-
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,PopupMenu.OnMenuItemClickListener  {
         private EditText nameEditView;
@@ -155,15 +148,15 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         @Override
         public boolean onMenuItemClick(MenuItem item){
             int option = item.getItemId();
-//TODO try to use getLayoutPosition , last time it was working better
+
             switch (option) {
                 case R.id.menu_rename:
-                    changeName(getAdapterPosition());
-                    Log.e(TAG, "Options item clicked: rename, position clicked : " +getAdapterPosition());
+                    changeName(getLayoutPosition());
+                    Log.e(TAG, "Options item clicked: rename, position clicked : " +getLayoutPosition());
                     return true;
                 case R.id.menu_remove:
-                    removeList(getAdapterPosition());
-                    Log.e(TAG, "Options item clicked: remove, position clicked : " +getAdapterPosition());
+                    removeList(getLayoutPosition());
+                    Log.e(TAG, "Options item clicked: remove, position clicked : " +getLayoutPosition());
                     return true;
                 case R.id.menu_add_new_user:
                     //addUser(viewHolder.getLayoutPosition());
