@@ -30,6 +30,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -48,6 +49,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     private String mDisplayName;
     private ArrayList<DocumentSnapshot> mSnapshotList;
     private Context context;
+    private ListenerRegistration mListenerRegistration;
 
     public RecyclerAdapterShoppingList(Activity activity, FirebaseFirestore mFirestore, String name, final Context context) {
         mActivity = activity;
@@ -55,12 +57,21 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         this.mFirestore = mFirestore;
         mSnapshotList = new ArrayList<>();
         this.context = context;
-        collectionReference = mFirestore.collection("ShoppingLists");
+    }
 
-        collectionReference
+    @Override
+    public void onViewDetachedFromWindow(@NonNull ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        stopListeningToChanges();
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        collectionReference = mFirestore.collection("ShoppingLists");
+        mListenerRegistration = collectionReference
                 .orderBy("timestamp", Query.Direction.ASCENDING)
                 .addSnapshotListener(this);
-
     }
 
     @Override
@@ -97,8 +108,6 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
             }
         }
     }
-
-
 
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,PopupMenu.OnMenuItemClickListener  {
@@ -236,18 +245,18 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
     private void removeList(final int position){
         final String key = mSnapshotList.get(position).getId();
-        DocumentReference docRef = FirebaseFirestore.getInstance().document("ShoppingLists/"+key);
+        DocumentReference docRef = getDocumentReference(key);
         docRef.delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.e(TAG,"List with key: " + key + "has been removed on position : " +position);
+                        logMessage("List with key: " + key + "has been removed on position : " +position);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG,"Failure removing list with key: " + key);
+                        logMessage("Failure removing list with key: " + key);
 
                     }
                 });
@@ -255,88 +264,14 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                 notifyItemRemoved(position);
     }
 
-    private String getUserId (String userName){
-        final String[] userId = new String[1];
-        CollectionReference mCollectionReference = mFirestore.collection("users");
-        mCollectionReference
-                .whereEqualTo("display_name", userName)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for(QueryDocumentSnapshot document: task.getResult()){
-                                userId[0] = document.getId();
-                                Log.d(TAG, "User exist, id: " + userId[0]);
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting user: " + task.getException());
-                            userId[0] ="";
-
-                        }
-                    }
-                });
-        return userId[0];
+    private DocumentReference getDocumentReference(String key){
+        return mFirestore.document("ShoppingLists/"+key);
     }
 
 
 
-   /* private void addUser(final int position){
-        final String key = mSnapshotList.get(position).getId();
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = mActivity.getLayoutInflater();
-        final View alertView = inflater.inflate(R.layout.dialog_custom_add_list,null);
-        TextView mTextView = alertView.findViewById(R.id.alert_textView);
-        mTextView.setText(R.string.alert_dialog_share_list);
 
-        builder.setView(alertView)
-                .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        EditText alert_editText = (EditText) alertView.findViewById(R.id.alert_editText);
-                        final String userName = alert_editText.getText().toString();
-                        final String userId = getUserId(userName);
-
-                        if(!userName.equals("")){
-                            if(userId.equals("")){
-                                final DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("ShoppingLists").document(key).collection("users_allowed").document(userId);
-                                Map<String, Object> data = new HashMap<>();
-                                data.put("user_ID",userName);
-                                mDocumentReference
-                                        .set(data)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d(TAG, "User added successfully :" +userName);
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.d(TAG, "Error adding user : " + e);
-                                            }
-                                        });
-                            }
-                        }
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                })
-                .create()
-                .show();
-
-
-
-
-        DocumentReference docRef = FirebaseFirestore.getInstance().document("ShoppingLists/"+key+"");
-
-    }
-*/
     private void changeName(final int position) {
-        Log.e(TAG,"changeName method");
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = mActivity.getLayoutInflater();
         final View alertView = inflater.inflate(R.layout.dialog_custom_add_list,null);
@@ -344,7 +279,6 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         mTextView.setText(R.string.TextViewChangingListNameAlert);
 
 //TODO add refreshing name after changing in database, Zmienić dane w arraylist mSnapshotlist aby działało
-
 
         builder.setView(alertView)
                 .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
@@ -403,8 +337,93 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
     }
 
+
+   /* private void addUser(final int position){
+        final String key = mSnapshotList.get(position).getId();
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = mActivity.getLayoutInflater();
+        final View alertView = inflater.inflate(R.layout.dialog_custom_add_list,null);
+        TextView mTextView = alertView.findViewById(R.id.alert_textView);
+        mTextView.setText(R.string.alert_dialog_share_list);
+
+        builder.setView(alertView)
+                .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        EditText alert_editText = (EditText) alertView.findViewById(R.id.alert_editText);
+                        final String userName = alert_editText.getText().toString();
+                        final String userId = getUserId(userName);
+
+                        if(!userName.equals("")){
+                            if(userId.equals("")){
+                                final DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("ShoppingLists").document(key).collection("users_allowed").document(userId);
+                                Map<String, Object> data = new HashMap<>();
+                                data.put("user_ID",userName);
+                                mDocumentReference
+                                        .set(data)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "User added successfully :" +userName);
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.d(TAG, "Error adding user : " + e);
+                                            }
+                                        });
+                            }
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    }
+                })
+                .create()
+                .show();
+
+
+
+
+        DocumentReference docRef = FirebaseFirestore.getInstance().document("ShoppingLists/"+key+"");
+
+    }
+*/
+
+    private String getUserId (String userName){
+        final String[] userId = new String[1];
+        CollectionReference mCollectionReference = mFirestore.collection("users");
+        mCollectionReference
+                .whereEqualTo("display_name", userName)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for(QueryDocumentSnapshot document: task.getResult()){
+                                userId[0] = document.getId();
+                                Log.d(TAG, "User exist, id: " + userId[0]);
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting user: " + task.getException());
+                            userId[0] ="";
+
+                        }
+                    }
+                });
+        return userId[0];
+    }
+
     private void logMessage(String log){
         Log.d(TAG,log);
     }
+
+    public void stopListeningToChanges(){
+        mListenerRegistration.remove();
+    }
+
 
 }
