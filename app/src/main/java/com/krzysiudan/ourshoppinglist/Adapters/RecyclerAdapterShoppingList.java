@@ -38,7 +38,7 @@ import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
 import com.krzysiudan.ourshoppinglist.R;
 import java.util.ArrayList;
 
-public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAdapterShoppingList.ViewHolder>  {
+public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAdapterShoppingList.ViewHolder> implements  EventListener<QuerySnapshot> {
 
     public static final String TAG = "OurShoppingList";
 
@@ -57,39 +57,49 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         this.context = context;
         collectionReference = mFirestore.collection("ShoppingLists");
 
-        collectionReference.orderBy("timestamp", Query.Direction.ASCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
-                Log.w(TAG,"SnapshotListener is working");
-                if(e != null) {
-                    Toast.makeText(context,"Error while loading",Toast.LENGTH_SHORT);
-                    Log.w(TAG,"Listener on ShoppingLists error:",e);
-                    return;
-                }
+        collectionReference
+                .orderBy("timestamp", Query.Direction.ASCENDING)
+                .addSnapshotListener(this);
 
-                if(!queryDocumentSnapshots.isEmpty()) {
-                    for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                        switch (dc.getType()) {
-                            case ADDED:
-                                Log.w(TAG, "New shoppinglist ADDED" + dc.getDocument().getData());
-                                mSnapshotList.add(dc.getDocument());
-                                notifyItemInserted(mSnapshotList.size());
-                                break;
-                            case MODIFIED:
-                                Log.w(TAG, "Shoppinglist MODIFIED: " + dc.getDocument().getData());
-                                notifyDataSetChanged();
-                                break;
-                            case REMOVED:
-                                int position= mSnapshotList.indexOf(dc.getDocument());
-                                Log.w(TAG, "Shoppinglist REMOVED" + dc.getDocument().getData()+" Position: "+position);
-                                break;
-                        }
-                    }
-                }
-            }
-        });
     }
+
+    @Override
+    public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+        if(e != null) {
+            Toast.makeText(context,"Error while loading",Toast.LENGTH_SHORT).show();
+            Log.w(TAG,"Listener on ShoppingLists error:",e);
+            return;
+        }
+
+        try {
+            handleTheViewChanges(queryDocumentSnapshots);
+        }catch (NullPointerException f){
+            logMessage("Query Snapshot is Empty, exception : "+f);
+        }
+    }
+
+    private void handleTheViewChanges(QuerySnapshot queryDocumentSnapshots){
+        for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+            switch (dc.getType()) {
+                case ADDED:
+                    Log.w(TAG, "New shoppinglist ADDED" + dc.getDocument().getData());
+                    mSnapshotList.add(dc.getDocument());
+                    notifyItemInserted(mSnapshotList.size());
+                    break;
+                case MODIFIED:
+                    Log.w(TAG, "Shoppinglist MODIFIED: " + dc.getDocument().getData());
+                    notifyDataSetChanged();
+                    break;
+                case REMOVED:
+                    int position= mSnapshotList.indexOf(dc.getDocument());
+                    Log.w(TAG, "Shoppinglist REMOVED" + dc.getDocument().getData()+" Position: "+position);
+                    break;
+            }
+        }
+    }
+
+
+
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,PopupMenu.OnMenuItemClickListener  {
         private EditText nameEditView;
@@ -101,8 +111,8 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         private ViewHolder( View itemView, Context context, ArrayList<DocumentSnapshot> mSnapshotList) {
             super(itemView);
             mLinearLayout = itemView.findViewById(R.id.singleMessageContainer);
-            nameEditView = (EditText) itemView.findViewById(R.id.single_list);
-            mImageButtonPopupMenu = (ImageButton) itemView.findViewById(R.id.imageButton3);
+            nameEditView =  itemView.findViewById(R.id.single_list);
+            mImageButtonPopupMenu =  itemView.findViewById(R.id.imageButton3);
             this.context = context;
             this.mSnapshotList = mSnapshotList;
             itemView.setOnClickListener(this);
