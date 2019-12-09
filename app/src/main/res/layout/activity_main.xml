@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/shopping_cart"
-    android:gravity="bottom">
+    android:gravity="bottom"
+    android:id="@+id/activity_main_layout">
 
     <com.google.android.material.textfield.TextInputLayout
 
@@ -43,7 +44,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/button_sign_in"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -53,31 +53,44 @@
             android:id="@+id/textView_password_register"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/textView_password"
-            android:inputType="textPassword"
-            android:textColorHint="@color/white"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
+            android:hint="@string/textView_password"
             android:imeActionId="@integer/login"
             android:imeActionLabel="@string/action_sign_in_short"
+            android:inputType="textPassword"
+            android:textColorHint="@color/white"
 
             />
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <LinearLayout
+        android:id="@+id/linear_layout_for_providers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/button_go_to_register"
+        android:weightSum="2">
+
     <com.google.android.gms.common.SignInButton
-        android:id="@+id/sign_up_button"
-        android:layout_width="67dp"
-        android:layout_height="13dp"
+        android:layout_weight="1"
+        android:id="@+id/google_sign_in"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_marginBottom="8dp"
         android:paddingBottom="10dp"
-        android:visibility="invisible"
+        android:layout_marginEnd="6dp"
+        android:layout_marginStart="6dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
     </com.google.android.gms.common.SignInButton>
+
+        ></LinearLayout>
+
+
 
     <Button
         android:id="@+id/button_go_to_register"
@@ -89,7 +102,7 @@
         android:textColor="@color/primary_dark"
         android:text="@string/button_register"
         android:textAllCaps="false"
-        app:layout_constraintBottom_toTopOf="@id/sign_up_button"
+        app:layout_constraintBottom_toBottomOf="@id/activity_main_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:padding="20dp"
@@ -108,7 +121,7 @@
         android:padding="20dp"
         android:textSize="20sp"
         android:text="@string/button_sign_in"
-        app:layout_constraintBottom_toTopOf="@+id/button_go_to_register"
+        app:layout_constraintBottom_toTopOf="@+id/linear_layout_for_providers"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />

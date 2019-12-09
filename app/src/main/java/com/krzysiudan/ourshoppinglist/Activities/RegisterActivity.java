@@ -33,11 +33,6 @@ import butterknife.OnEditorAction;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    public static final String LIST_PREFS ="ListPrefs";
-    public static final String DISPLAY_NAME_KEY="username";
-    public static final String DATA_PREFS ="DataPrefs";
-    public static final String EMAIL_KEY="EmailKey";
-    public static final String PASSWORD_KEY="PasswordKey";
     public static final String TAG = "RegisterActivityLog";
 
 
@@ -170,8 +165,21 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void updateUI(FirebaseUser user){
-        Intent goToTheApp = new Intent(RegisterActivity.this,ListActivity.class);
-        finish();
-        startActivity(goToTheApp);
+        if(user!=null) {
+            Intent goToTheApp = new Intent(RegisterActivity.this, ListActivity.class);
+            finish();
+            startActivity(goToTheApp);
+        } else{
+            Intent getBack = new Intent(RegisterActivity.this, ListActivity.class);
+            finish();
+            startActivity(getBack);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        updateUI(mAuth.getCurrentUser());
+
     }
 }
