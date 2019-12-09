@@ -312,29 +312,37 @@ public class ListActivity extends AppCompatActivity   {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case android.R.id.home:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-                builder.setTitle("Logout")
-                        .setMessage("Do you want to logout?")
-                        .setPositiveButton("Logout", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                FirebaseAuth.getInstance().signOut();
-                                Log.e(TAG,"SIGNED OUT");
-                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                intent.putExtra("logout_key","Logout");
-                                startActivity(intent);
-                                Log.e("OurShoppingList","Dialog logout button clicked");
-                            }
-                        })
-                        .setNegativeButton("NO", null)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
+               LogOut();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void LogOut(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Logout")
+                .setMessage("Do you want to logout?")
+                .setPositiveButton("Logout", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        FirebaseAuth.getInstance().signOut();
+                        Log.e(TAG,"SIGNED OUT");
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.putExtra("logout_key","Logout");
+                        startActivity(intent);
+                        Log.e("OurShoppingList","Dialog logout button clicked");
+                    }
+                })
+                .setNegativeButton("NO", null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        LogOut();
     }
 }
 

@@ -170,7 +170,7 @@ public class RegisterActivity extends AppCompatActivity {
             finish();
             startActivity(goToTheApp);
         } else{
-            Intent getBack = new Intent(RegisterActivity.this, ListActivity.class);
+            Intent getBack = new Intent(RegisterActivity.this, MainActivity.class);
             finish();
             startActivity(getBack);
         }
@@ -178,7 +178,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         updateUI(mAuth.getCurrentUser());
 
     }

@@ -53,9 +53,7 @@ public class FragmentBoughtItems extends Fragment {
         //SharedPreferences mPreferences = this.getActivity().getSharedPreferences(ListActivity.DATA, Context.MODE_PRIVATE);
         //motherListName = mPreferences.getString(ListActivity.MOTHER_NAME,null);
 
-        SharedPreferences prefs = this.getActivity().getSharedPreferences(RegisterActivity.LIST_PREFS, Context.MODE_PRIVATE);
-        mUsername = prefs.getString(RegisterActivity.DISPLAY_NAME_KEY,null);
-        Log.e("OurShoppingList","DISPLAY NAME: " + mUsername);
+
 
         if(getArguments()!=null){
             Bundle b = this.getArguments();
