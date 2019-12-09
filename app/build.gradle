@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
-    compileOptions{
+    compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
     lintOptions {
-    disable 'RestrictedApi'
-}
+        disable 'RestrictedApi'
+    }
     defaultConfig {
         applicationId "com.krzysiudan.ourshoppinglist"
         minSdkVersion 22
@@ -17,11 +17,11 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-        resConfigs  'en, pl'
+        resConfigs 'en,pl'
     }
-ext{
-    supportLibVersion = '28.0.0'
-}
+    ext {
+        supportLibVersion = '28.0.0'
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -54,4 +54,3 @@ dependencies {
 }
 
 apply plugin: 'com.google.gms.google-services'
-

@@ -2,11 +2,12 @@ package com.krzysiudan.ourshoppinglist.Activities;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -18,16 +19,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.auth.FirebaseUser;
 import com.krzysiudan.ourshoppinglist.R;
 
-import java.util.HashMap;
-import java.util.Map;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.OnEditorAction;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -38,78 +40,79 @@ public class RegisterActivity extends AppCompatActivity {
     public static final String PASSWORD_KEY="PasswordKey";
     public static final String TAG = "RegisterActivityLog";
 
-    private Button registerbutton;
-    private AutoCompleteTextView usernameText;
-    private AutoCompleteTextView emailText;
-    private EditText passwordText;
-    private EditText repeatpasswordText;
 
     private FirebaseAuth mAuth;
 
+    @BindView(R.id.button_sign_up) Button signUp;
+    @BindView(R.id.button_get_back_tologin) Button backToLogin;
+    @BindView(R.id.textView_email_register) AutoCompleteTextView inputEmail;
+    @BindView(R.id.textView_password_register) EditText inputPassword;
+    @BindView(R.id.layout_register_activity)
+    ConstraintLayout parentView;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        ButterKnife.bind(this);
+        mAuth = FirebaseAuth.getInstance();
 
-        registerbutton = (Button) findViewById(R.id.register_button_regactivity);
 
-        usernameText = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView_Username);
-        emailText = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView_Email);
-        passwordText = (EditText) findViewById(R.id.editText_Password);
-        repeatpasswordText = (EditText) findViewById(R.id.editText_RepeatPassword);
+    }
 
-        repeatpasswordText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if(i==R.integer.register_form_finished ||i ==EditorInfo.IME_NULL){
-                    attemptRegistration();
-                    return true;
-                }
+    @OnClick(R.id.button_sign_up)
+    public void signUp (View view){
+        Log.d(TAG,"SignUp button clicked");
+        attemptRegistration();
+    }
 
-                return false;
-            }
-        });
-        mAuth=FirebaseAuth.getInstance();
+    @OnClick(R.id.button_get_back_tologin)
+    public void goBackToLoginActivity(View view){
+        Log.d(TAG,"Going back to Login Activity");
+        Intent goBackToLoginActivity = new Intent(RegisterActivity.this, MainActivity.class);
+        finish();
+        startActivity(goBackToLoginActivity);
+    }
 
-        registerbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptRegistration();
-            }
-        });
+    @OnEditorAction(R.id.textView_password_register)
+    public boolean register(TextView textView, int i , KeyEvent keyEvent){
+        if(i==R.integer.register_form_finished ||i ==EditorInfo.IME_NULL){
+            attemptRegistration();
+            return true;
+        }
+        return false;
     }
 
     private void attemptRegistration(){
 
         //reset errors
-        usernameText.setError(null);
-        emailText.setError(null);
+        inputEmail.setError(null);
+        inputPassword.setError(null);
 
-        String email = emailText.getText().toString();
-        String password = passwordText.getText().toString();
+        String email = inputEmail.getText().toString();
+        String password = inputPassword.getText().toString();
 
         boolean cancel = false;
         View focusView =null;
 
-        //checking for valid password
+        //checking for valid inputPassword
         if(TextUtils.isEmpty(password)|| !isPasswordValid(password)){
-            passwordText.setError("Password too short or");
-            focusView=passwordText;
+            inputPassword.setError("Password too short or");
+            focusView=inputPassword;
             cancel=true;
         }else{
             Log.e(TAG,"Password is valid");
         }
 
-        //check for a valid email address
+        //check for a valid inputEmail address
         if(TextUtils.isEmpty(email)){
-            emailText.setError("This Field is required");
-            focusView=emailText;
+            inputEmail.setError("This Field is required");
+            focusView=inputEmail;
             cancel=true;
         }else if(!isEmailValid(email)){
-            emailText.setError("This email address is invalid");
-            focusView=emailText;
+            inputEmail.setError("This inputEmail address is invalid");
+            focusView=inputEmail;
             cancel=true;
         }else{
             Log.e(TAG,"Email is Valid");
@@ -128,13 +131,12 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private boolean isPasswordValid(String password){
-        String confirmPassword = repeatpasswordText.getText().toString();
-        return confirmPassword.equals(password);
+        return password.length()>=6;
     }
 
     private void createFirebaseUser(){
-        String email = emailText.getText().toString();
-        String password = passwordText.getText().toString();
+        String email = inputEmail.getText().toString();
+        String password = inputPassword.getText().toString();
 
         mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener
                 (RegisterActivity.this,
@@ -147,48 +149,15 @@ public class RegisterActivity extends AppCompatActivity {
                     Log.e(TAG,"Create user failed"+task.getException());
                     showErrorDialog("Registration attempt failed");
                 }else{
-                    saveDisplayName();
-                    saveEmailAndPassword();
-                    FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
-                    String displayName = usernameText.getText().toString();
-                    String userUid =task.getResult().getUser().getUid();
-                    Map<String,Object> userMap = new HashMap<>();
-                    userMap.put("display_name",displayName);
-
-                    mFirebaseFirestore.collection("users").document(userUid).set(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.e(TAG,"User added to collection");
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.e(TAG,"Failed to add user to collection");
-                        }
-                    });
-                    Intent i = new Intent(RegisterActivity.this, MainActivity.class);
-                    finish();
-                    startActivity(i);
+                    Log.e(TAG,"Create user success"+task.getException());
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    updateUI(user);
+                    Snackbar.make(parentView,"Account succesfully created", Snackbar.LENGTH_SHORT).show();
                 }
 
             }
         });
 
-    }
-
-    private void saveDisplayName(){
-        String displayName = usernameText.getText().toString();
-        SharedPreferences prefs = getSharedPreferences(LIST_PREFS,0);
-        prefs.edit().putString(DISPLAY_NAME_KEY,displayName).apply();
-    }
-
-    private void saveEmailAndPassword(){
-        String email = emailText.getText().toString();
-        String password = passwordText.getText().toString();
-        Log.e(TAG,email+password);
-        SharedPreferences prefer = getSharedPreferences(DATA_PREFS,0);
-        prefer.edit().putString(EMAIL_KEY,email).apply();
-        prefer.edit().putString(PASSWORD_KEY,password).apply();
     }
 
     private void showErrorDialog(String message){
@@ -198,5 +167,11 @@ public class RegisterActivity extends AppCompatActivity {
                 .setPositiveButton(android.R.string.ok,null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+    }
+
+    private void updateUI(FirebaseUser user){
+        Intent goToTheApp = new Intent(RegisterActivity.this,ListActivity.class);
+        finish();
+        startActivity(goToTheApp);
     }
 }

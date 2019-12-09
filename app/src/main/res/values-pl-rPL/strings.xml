@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="firsttime_activity_edittext">Wprowadź swój nick</string>
-    <string name="button_register">Rejestracja</string>
-    <string name="button_singin">Zaloguj</string>
+    <string name="button_sign_in">Zaloguj</string>
     <string name="textView_password">Hasło</string>
     <string name="textView_Username_register_Activity">Pseudonim</string>
     <string name="textView_password_register_Activity">Hasło</string>
@@ -38,4 +37,7 @@
     <string name="TextViewChangingListNameAlert">Wybierz nowe imię</string>
     <string name="add_user">"Dodaj użytkownika "</string>
     <string name="share">Udostępnij</string>
+    <string name="button_register">Nie masz jeszcze konta? Zarejetruj się</string>
+    <string name="have_account_already_login">Masz już konto? Zaloguj się</string>
+    <string name="button_sign_up">Stwórz konto</string>
 </resources>

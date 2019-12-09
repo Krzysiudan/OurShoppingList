@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Our Shopping List</string>
     <string name="firsttime_activity_edittext">Enter your name</string>
-    <string name="button_register">REGISTER</string>
-    <string name="button_singin">SIGN IN</string>
+    <string name="button_register">Don\'t have account yet? Sign up</string>
+    <string name="button_sign_in">SIGN IN</string>
     <string name="textView_password">Password</string>
     <string name="textView_email" translatable="false">Email</string>
     <string name="textView_email_register_activity" translatable="false">Email</string>
@@ -41,6 +41,8 @@
     <string name="share">Share</string>
     <string name="facebook_app_id" translatable="false">446453899587830</string>
     <string name="fb_login_protocol_scheme" translatable="false">fb446453899587830</string>
+    <string name="have_account_already_login">Have account already? Login</string>
+    <string name="button_sign_up">SIGN UP</string>
 
 
 </resources>

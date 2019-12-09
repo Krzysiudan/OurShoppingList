@@ -21,6 +21,7 @@ import com.krzysiudan.ourshoppinglist.Fragments.FragmentPlannedItems;
 import com.krzysiudan.ourshoppinglist.R;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class ActivityMainItems extends AppCompatActivity {
 
@@ -43,9 +44,8 @@ public class ActivityMainItems extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_items);
-
+        ButterKnife.bind(this);
         setupFirebaseListener();
-        mToolbar = (Toolbar) findViewById(R.id.include_items);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

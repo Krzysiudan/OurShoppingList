@@ -1,6 +1,11 @@
 package com.krzysiudan.ourshoppinglist.Activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -12,35 +17,32 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.krzysiudan.ourshoppinglist.R;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnEditorAction;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivityOld extends AppCompatActivity {
+
     public static final String TAG = "MainActivityLog";
 
 
@@ -50,11 +52,11 @@ public class MainActivity extends AppCompatActivity {
 
     private static int RC_SIGN_IN = 100;
 
-    @BindView(R.id.textView_email_register)
-    AutoCompleteTextView inputEmail;
+    @BindView(R.id.textView_email_register) AutoCompleteTextView emailText;
     @BindView(R.id.textView_password_register) EditText passwordText;
     @BindView(R.id.button_sign_in) Button buttonSignIn;
     @BindView(R.id.button_go_to_register) Button buttonRegister;
+    @BindView(R.id.sign_up_button) SignInButton googleSignInButton;
 
 
 
@@ -65,50 +67,57 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-       /* ActionCodeSettings mActionCodeSettings = ActionCodeSettings.newBuilder()
-                .setAndroidPackageName(getPackageName(), true,null)
-                .setHandleCodeInApp(true)
-                .setUrl("our-shopping-list-5f1e7.firebaseapp.com")
-                .build(); */
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        googleSignInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e("OurShoppingList","googleSignInButton clicked");
+                switch (v.getId()){
+                    case R.id.sign_up_button:
+                        Log.e("OurShoppingList","correct case worked");
+                        signIn();
+                        break;
+                }
+            }
+        });
+
+        Log.e("OurShoppingList","Button refernces complited");
+
+        passwordText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if(i== R.integer.login || i==EditorInfo.IME_NULL){
+                    attemptLogin();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+
+        buttonRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivityOld.this,RegisterActivity.class);
+                finish();
+                startActivity(i);
+            }
+        });
+
+        buttonSignIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptLogin();
+            }
+        });
 
         mAuth = FirebaseAuth.getInstance();
-        if(mAuth.getCurrentUser() != null){
-            updateUI(mAuth.getCurrentUser());
-            Intent i = new Intent(MainActivity.this,ListActivity.class);
-            finish();
-            startActivity(i);
-        } else{
-           /* startActivityForResult(AuthUI.getInstance()
-                                         .createSignInIntentBuilder()
-                                         .setAvailableProviders(Arrays.asList(
-                                                 new AuthUI.IdpConfig.GoogleBuilder().build(),
-                                                 new AuthUI.IdpConfig.FacebookBuilder().build(),
-                                                 new AuthUI.IdpConfig.EmailBuilder().enableEmailLinkSignIn()
-                                                         .setActionCodeSettings(mActionCodeSettings).build()))
-                                         .build(),RC_SIGN_IN);*/
-        }
 
-    }
 
-    @OnClick(R.id.button_go_to_register)
-    public void register(View view){
-        Intent i = new Intent(MainActivity.this,RegisterActivity.class);
-        finish();
-        startActivity(i);
-    }
-
-    @OnClick(R.id.button_sign_in)
-    public void logInButton(View view){
-        attemptLogin();
-    }
-
-    @OnEditorAction(R.id.textView_password_register)
-    public boolean logInEditor(TextView view, int i,KeyEvent keyEvent){
-        if(i==R.integer.login || i == EditorInfo.IME_NULL){
-            attemptLogin();
-            return true;
-        }
-        return false;
     }
 
 
@@ -118,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(signInIntent,RC_SIGN_IN);
     }
 
-   /* @Override
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -137,30 +146,33 @@ public class MainActivity extends AppCompatActivity {
             updateUI(null);
         }
     }
-*/
+
 
     @Override
     protected void onResume() {
         super.onResume();
+        checkIfThereIsEmailAndPassword();
     }
 
 
     @Override
     protected void onStart() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
         super.onStart();
-
+        String i = getIntent().getStringExtra("logout_key");
+        if(i==null){
+            GoogleSignInAccount account =  GoogleSignIn.getLastSignedInAccount(this);
+            updateUI(account);
+        }
 
     }
 
-    private void updateUI(FirebaseUser user) {
-        if (user==null){
-            Log.e("OurShoppingList","No user logged in");
+    private void updateUI(GoogleSignInAccount account) {
+        if (account==null){
+            Log.e("OurShoppingList","There is no google account");
 
         }else{
             //checkIfUserIsInFirestore();
-            Intent i = new Intent(MainActivity.this, ListActivity.class);
+            Intent i = new Intent(MainActivityOld.this, ListActivity.class);
             finish();
             startActivity(i);
         }
@@ -200,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void attemptLogin(){
-        String email = inputEmail.getText().toString();
+        String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
         if(email.equals("")||password.equals("")) return;
@@ -210,15 +222,16 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 Log.e("OurShoppingList","SignInWithEmail onComplete: "+task.isSuccessful());
 
-                if(!task.isSuccessful()){
-                    Log.e("OurShoppingList","Problem singing in:"+task.getException());
-                    showErrorDialog("There was a problem with singing in");
-                    updateUI(null);
-                }else{
-                    updateUI(mAuth.getCurrentUser());
+                    if(!task.isSuccessful()){
+                        Log.e("OurShoppingList","Problem singing in:"+task.getException());
+                        showErrorDialog("There was a problem with singing in");
+                    }else{
+                        Intent i = new Intent(MainActivityOld.this, ListActivity.class);
+                        finish();
+                        startActivity(i);
+                    }
                 }
-            }
-        });
+            });
 
     }
 
@@ -230,5 +243,25 @@ public class MainActivity extends AppCompatActivity {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
 
+    }
+
+
+    private void checkIfThereIsEmailAndPassword(){
+        String rememberedEmail ;
+        String rememberedPassword;
+
+        SharedPreferences prefer = getSharedPreferences(RegisterActivity.DATA_PREFS,MODE_PRIVATE);
+        rememberedEmail = prefer.getString(RegisterActivity.EMAIL_KEY,null);
+        rememberedPassword = prefer.getString(RegisterActivity.PASSWORD_KEY,null);
+
+        Log.e("OurShoppingList","RememberedEmail value: "+rememberedEmail);
+        Log.e("OurShoppingList","RememberedPassword value: "+rememberedPassword);
+
+        if(!(rememberedEmail==null)){
+            emailText.setText(rememberedEmail);
+        }
+        if(!(rememberedPassword==null)){
+            passwordText.setText(rememberedPassword);
+        }
     }
 }
