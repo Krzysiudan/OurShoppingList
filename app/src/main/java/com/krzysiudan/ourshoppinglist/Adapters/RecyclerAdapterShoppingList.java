@@ -244,7 +244,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     }
 
     private void removeList(final int position){
-        final String key = mSnapshotList.get(position).getId();
+        final String key = getListKey(position);
         DocumentReference docRef = getDocumentReference(key);
         docRef.delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -268,8 +268,9 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         return mFirestore.document("ShoppingLists/"+key);
     }
 
-
-
+    private String getListKey(int position){
+        return mSnapshotList.get(position).getId();
+    }
 
     private void changeName(final int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -288,8 +289,8 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                         final String list_name = alert_editText.getText().toString();
 
                         if(!list_name.equals("")){
-                            final String key = mSnapshotList.get(position).getId();
-                            final DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("ShoppingLists").document(key);
+                            final String key = getListKey(position);
+                            final DocumentReference mDocumentReference = getDocumentReference(key);
                             mDocumentReference.update("list_name",list_name)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
@@ -333,9 +334,9 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                 })
                 .create()
                 .show();
-
-
     }
+
+
 
 
    /* private void addUser(final int position){

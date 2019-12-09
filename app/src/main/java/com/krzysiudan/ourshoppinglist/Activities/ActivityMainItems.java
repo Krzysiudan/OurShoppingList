@@ -20,11 +20,15 @@ import com.krzysiudan.ourshoppinglist.Adapters.FragmentPagerAdapterItems;
 import com.krzysiudan.ourshoppinglist.Fragments.FragmentPlannedItems;
 import com.krzysiudan.ourshoppinglist.R;
 
+import butterknife.BindView;
+
 public class ActivityMainItems extends AppCompatActivity {
 
     public static final String TAG = "ActivityMainItemsLog";
 
-    private Toolbar mToolbar;
+    @BindView(R.id.include_items) Toolbar mToolbar;
+    @BindView(R.id.toolbar_title) TextView toolbarTittle;
+
     private String motherListKey;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
@@ -38,7 +42,7 @@ public class ActivityMainItems extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_items);
 
         setupFirebaseListener();
         mToolbar = (Toolbar) findViewById(R.id.include_items);
@@ -46,8 +50,8 @@ public class ActivityMainItems extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        TextView mTitle = (TextView) mToolbar.findViewById(R.id.toolbar_title);
-        mTitle.setText(R.string.products);
+
+        toolbarTittle.setText(R.string.products);
 
 
         motherListKey = getIntent().getStringExtra("MotherListName");

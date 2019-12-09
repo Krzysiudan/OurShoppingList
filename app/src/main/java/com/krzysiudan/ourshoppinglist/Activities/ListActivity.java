@@ -9,9 +9,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -73,8 +70,6 @@ public class ListActivity extends AppCompatActivity   {
         mFirestore = FirebaseFirestore.getInstance();
 
         setupFirebaseListener();
-
-
 
         newListButton = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         mRecyclerView = (RecyclerView) findViewById(R.id.ShoppingListrv);

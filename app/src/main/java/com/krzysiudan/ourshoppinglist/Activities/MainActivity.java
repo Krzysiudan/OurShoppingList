@@ -29,16 +29,18 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.krzysiudan.ourshoppinglist.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.facebook.FacebookSdk;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,17 +48,16 @@ public class MainActivity extends AppCompatActivity {
 
 
     private FirebaseAuth mAuth;
-
-    private AutoCompleteTextView emailText;
-    private EditText passwordText;
-    private Button button_signin;
-    private Button button_register;
-    private SignInButton signInButton;
     private GoogleSignInClient mGoogleSignInClient;
 
 
-
     private static int RC_SIGN_IN = 100;
+
+    @BindView(R.id.textView_email) AutoCompleteTextView emailText;
+    @BindView(R.id.textView_password) EditText passwordText;
+    @BindView(R.id.button_sign_in) Button buttonSignIn;
+    @BindView(R.id.button_register) Button buttonRegister;
+    @BindView(R.id.sign_in_button) SignInButton googleSignInButton;
 
 
 
@@ -64,28 +65,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         FirebaseApp.initializeApp(this);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
-
-
-        Log.e("OurShoppingList","Application started");
-
-        emailText = (AutoCompleteTextView) findViewById(R.id.textView_email);
-        passwordText = (EditText) findViewById(R.id.textView_password);
-        button_signin = (Button)findViewById(R.id.button_input2);
-        button_register =(Button)findViewById(R.id.button_input);
-        signInButton = (SignInButton) findViewById(R.id.sign_in_button);
-
+        setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-
-        signInButton.setOnClickListener(new View.OnClickListener() {
+        googleSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e("OurShoppingList","signInButton clicked");
+                Log.e("OurShoppingList","googleSignInButton clicked");
                 switch (v.getId()){
                     case R.id.sign_in_button:
                         Log.e("OurShoppingList","correct case worked");
@@ -95,10 +86,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         Log.e("OurShoppingList","Button refernces complited");
-
-
 
         passwordText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -112,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        button_register.setOnClickListener(new View.OnClickListener() {
+        buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(MainActivity.this,RegisterActivity.class);
@@ -121,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        button_signin.setOnClickListener(new View.OnClickListener() {
+        buttonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
@@ -132,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
 
     private void signIn(){
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();

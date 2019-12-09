@@ -39,6 +39,8 @@
     <string name="bought">Bought</string>
     <string name="planned">Planned</string>
     <string name="share">Share</string>
+    <string name="facebook_app_id" translatable="false">446453899587830</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb446453899587830</string>
 
 
 </resources>
