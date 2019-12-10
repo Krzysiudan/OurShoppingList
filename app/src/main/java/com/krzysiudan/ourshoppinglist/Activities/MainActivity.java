@@ -17,6 +17,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -31,13 +37,17 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.krzysiudan.ourshoppinglist.R;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,22 +58,24 @@ import butterknife.OnEditorAction;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivityLog";
+    private static int RC_SIGN_IN = 100;
+    private static final String EMAIL = "email";
 
 
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
+    private CallbackManager mCallbackManager;
 
 
-    private static int RC_SIGN_IN = 100;
 
-    @BindView(R.id.textView_email_register)
-    AutoCompleteTextView inputEmail;
+
+    @BindView(R.id.textView_email_register) AutoCompleteTextView inputEmail;
     @BindView(R.id.textView_password_register) EditText passwordText;
     @BindView(R.id.button_sign_in) Button buttonSignIn;
-    @BindView(R.id.google_sign_in)
-    SignInButton googleSignIn;
+    @BindView(R.id.google_sign_in) SignInButton googleSignIn;
     @BindView(R.id.button_go_to_register) Button buttonRegister;
     @BindView(R.id.activity_main_layout) ConstraintLayout parentView;
+    @BindView(R.id.login_button_facebook) LoginButton facebookLogIn;
 
 
 
@@ -73,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        mCallbackManager = CallbackManager.Factory.create();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -104,8 +118,54 @@ public class MainActivity extends AppCompatActivity {
                                          .build(),RC_SIGN_IN);*/
         }
 
+        facebookLogIn.setReadPermissions("email","public_profile");
 
 
+        facebookLogIn.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>(){
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.d(TAG, "facebook:onSuccess:" + loginResult);
+                handleFacebookAccessToken(loginResult.getAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+                Log.d(TAG, "facebook:onCancel");
+                updateUI(null);
+            }
+
+            @Override
+            public void onError(FacebookException exception) {
+                Log.d(TAG, "facebook:onError", exception);
+                updateUI(null);
+            }
+        });
+    }
+
+    private void handleFacebookAccessToken(AccessToken token) {
+        Log.d(TAG, "handleFacebookAccessToken:" + token);
+
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithCredential:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            updateUI(null);
+                        }
+
+                        // ...
+                    }
+                });
     }
 
     @OnClick(R.id.button_go_to_register)
@@ -136,14 +196,17 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(signInIntent,RC_SIGN_IN);
     }
 
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
         if(requestCode ==RC_SIGN_IN){
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignedResult(task);
+        }else {
+            mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
+            super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void handleSignedResult(Task<GoogleSignInAccount> task) {
@@ -268,8 +331,5 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton(android.R.string.ok,null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
-
     }
-
-
 }

@@ -66,31 +66,45 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+
     <LinearLayout
         android:id="@+id/linear_layout_for_providers"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:weightSum="2"
         app:layout_constraintBottom_toTopOf="@+id/button_go_to_register"
-        android:weightSum="2">
-
-    <com.google.android.gms.common.SignInButton
-        android:layout_weight="1"
-        android:id="@+id/google_sign_in"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="8dp"
-        android:paddingBottom="10dp"
-        android:layout_marginEnd="6dp"
-        android:layout_marginStart="6dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-    </com.google.android.gms.common.SignInButton>
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/google_sign_in"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            >
 
-        ></LinearLayout>
+        </com.google.android.gms.common.SignInButton>
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/login_button_facebook"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:layout_gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/google_sign_in" />
 
 
+    </LinearLayout>
 
     <Button
         android:id="@+id/button_go_to_register"
