@@ -30,8 +30,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseApp;
@@ -41,15 +39,7 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.krzysiudan.ourshoppinglist.R;
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -94,32 +84,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this,gso);
-
-       /* ActionCodeSettings mActionCodeSettings = ActionCodeSettings.newBuilder()
-                .setAndroidPackageName(getPackageName(), true,null)
-                .setHandleCodeInApp(true)
-                .setUrl("our-shopping-list-5f1e7.firebaseapp.com")
-                .build(); */
-
-        mAuth = FirebaseAuth.getInstance();
-        if(mAuth.getCurrentUser() != null){
-            updateUI(mAuth.getCurrentUser());
-            Intent i = new Intent(MainActivity.this,ListActivity.class);
-            finish();
-            startActivity(i);
-        } else{
-           /* startActivityForResult(AuthUI.getInstance()
-                                         .createSignInIntentBuilder()
-                                         .setAvailableProviders(Arrays.asList(
-                                                 new AuthUI.IdpConfig.GoogleBuilder().build(),
-                                                 new AuthUI.IdpConfig.FacebookBuilder().build(),
-                                                 new AuthUI.IdpConfig.EmailBuilder().enableEmailLinkSignIn()
-                                                         .setActionCodeSettings(mActionCodeSettings).build()))
-                                         .build(),RC_SIGN_IN);*/
-        }
-
         facebookLogIn.setReadPermissions("email","public_profile");
-
 
         facebookLogIn.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>(){
             @Override
@@ -162,8 +127,6 @@ public class MainActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
-
-                        // ...
                     }
                 });
     }
@@ -177,13 +140,13 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_sign_in)
     public void logInButton(View view){
-        attemptLogin();
+        firebaseAuthWithEmailAndPassword();
     }
 
     @OnEditorAction(R.id.textView_password_register)
     public boolean logInEditor(TextView view, int i,KeyEvent keyEvent){
         if(i==R.integer.login || i == EditorInfo.IME_NULL){
-            attemptLogin();
+            firebaseAuthWithEmailAndPassword();
             return true;
         }
         return false;
@@ -196,20 +159,18 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(signInIntent,RC_SIGN_IN);
     }
 
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode ==RC_SIGN_IN){
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignedResult(task);
+            handleSignedResultGoogle(task);
         }else {
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
             super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void handleSignedResult(Task<GoogleSignInAccount> task) {
+    private void handleSignedResultGoogle(Task<GoogleSignInAccount> task) {
         try{
             GoogleSignInAccount account =task.getResult(ApiException.class);
             firebaseAuthWithGoogle(account);
@@ -246,14 +207,11 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
     }
 
-
     @Override
     protected void onStart() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
         super.onStart();
-
-
     }
 
     private void updateUI(FirebaseUser user) {
@@ -268,40 +226,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void checkIfUserIsInFirestore(){
-        final FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
-        final FirebaseUser mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        final String userUid = mFirebaseUser.getUid();
-        mFirebaseFirestore.collection("users").document(userUid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    DocumentSnapshot document = task.getResult();
-                    if(!document.exists()){
-                        Map<String,Object> userMap = new HashMap<>();
-                        userMap.put("display_name",mFirebaseUser.getDisplayName());
-                        FirebaseFirestore.getInstance().collection("users").document(userUid).set(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.e(TAG,"User added to collection");
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG,"Failed to add user to collection");
-                            }
-                        });
-                    } else{
-                        Log.e(TAG,"There is a document in firestore");
-                    }
-                }else{
-                    Log.e(TAG,"Get failed with"+task.getException());
-                }
-            }
-        });
-    }
-
-    private void attemptLogin(){
+    private void firebaseAuthWithEmailAndPassword(){
         String email = inputEmail.getText().toString();
         String password = passwordText.getText().toString();
 
