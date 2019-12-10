@@ -49,15 +49,10 @@ import butterknife.OnEditorAction;
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivityLog";
     private static int RC_SIGN_IN = 100;
-    private static final String EMAIL = "email";
-
 
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private CallbackManager mCallbackManager;
-
-
-
 
     @BindView(R.id.textView_email_register) AutoCompleteTextView inputEmail;
     @BindView(R.id.textView_password_register) EditText passwordText;
@@ -66,8 +61,6 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.button_go_to_register) Button buttonRegister;
     @BindView(R.id.activity_main_layout) ConstraintLayout parentView;
     @BindView(R.id.login_button_facebook) LoginButton facebookLogIn;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

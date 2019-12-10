@@ -42,22 +42,27 @@ import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
 import java.util.HashMap;
 import java.util.Map;
 
+import butterknife.BindView;
+
 public class ListActivity extends AppCompatActivity   {
 
     public static final String MOTHER_NAME="mothername";
     public static final String DATA = "data";
     public static final String TAG = "ListActivityLog";
 
-    private FirebaseFirestore mFirestore;
-    private RecyclerView  mRecyclerView;
-    private FloatingActionButton newListButton;
-    private DatabaseReference mDatabaseReference;
     private String userUid;
-    private RecyclerAdapterShoppingList mRecyclerAdapter;
-    private Toolbar mToolbar;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
-    private boolean fabShouldBeShown;
+    private FirebaseFirestore mFirestore;
+    private DatabaseReference mDatabaseReference;
     private FirebaseUser user;
+    private RecyclerAdapterShoppingList mRecyclerAdapter;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+
+
+    @BindView(R.id.ShoppingListrv) RecyclerView mRecyclerView;
+    @BindView(R.id.include2) Toolbar mToolbar;
+    @BindView(R.id.floatingActionButton) FloatingActionButton newListButton;
+
+
 
 
     @Override
@@ -71,10 +76,6 @@ public class ListActivity extends AppCompatActivity   {
 
         setupFirebaseListener();
 
-        newListButton = (FloatingActionButton) findViewById(R.id.floatingActionButton);
-        mRecyclerView = (RecyclerView) findViewById(R.id.ShoppingListrv);
-
-        mToolbar = (Toolbar) findViewById(R.id.include2);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
