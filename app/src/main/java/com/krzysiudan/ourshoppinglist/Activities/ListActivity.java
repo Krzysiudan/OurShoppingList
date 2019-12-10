@@ -43,6 +43,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class ListActivity extends AppCompatActivity   {
 
@@ -54,6 +56,7 @@ public class ListActivity extends AppCompatActivity   {
     private FirebaseFirestore mFirestore;
     private DatabaseReference mDatabaseReference;
     private FirebaseUser user;
+    private FirebaseAuth mAuth;
     private RecyclerAdapterShoppingList mRecyclerAdapter;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
@@ -61,7 +64,7 @@ public class ListActivity extends AppCompatActivity   {
     @BindView(R.id.ShoppingListrv) RecyclerView mRecyclerView;
     @BindView(R.id.include2) Toolbar mToolbar;
     @BindView(R.id.floatingActionButton) FloatingActionButton newListButton;
-
+    @BindView(R.id.toolbar_title) TextView mTitle;
 
 
 
@@ -70,6 +73,9 @@ public class ListActivity extends AppCompatActivity   {
         super.onCreate(savedInstanceState);
         Log.e(TAG,"ON CREATE");
         setContentView(R.layout.activity_list_rv);
+        ButterKnife.bind(this);
+
+        mAuth = FirebaseAuth.getInstance();
 
         mDatabaseReference = FirebaseDatabase.getInstance().getReference();
         mFirestore = FirebaseFirestore.getInstance();
@@ -80,11 +86,7 @@ public class ListActivity extends AppCompatActivity   {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        TextView mTitle = (TextView) mToolbar.findViewById(R.id.toolbar_title);
         mTitle.setText(R.string.Title);
-
-
-
     }
 
 
@@ -100,6 +102,8 @@ public class ListActivity extends AppCompatActivity   {
     @Override
     protected void onStart() {
         super.onStart();
+
+        updateUI(mAuth.getCurrentUser());
         Log.e(TAG,"ON START");
         mRecyclerAdapter = new RecyclerAdapterShoppingList(this,mFirestore,"elo",this);
         mRecyclerView.setAdapter(mRecyclerAdapter);
@@ -107,78 +111,18 @@ public class ListActivity extends AppCompatActivity   {
         mRecyclerView.setClickable(true);
 
         FirebaseAuth.getInstance().addAuthStateListener(mAuthStateListener);
+    }
 
+    @OnClick(R.id.floatingActionButton)
+    public void floatingActionButtonClicked(View view){
+        addList();
+    }
 
-
-        final String userDisplayName ;
-
-        if(user !=null){
-            userUid = user.getUid();
-            if(userUid.isEmpty()){
-                for(UserInfo profile :user.getProviderData()){
-                    userUid = profile.getUid();
-                }
-            }
-            Log.e(TAG,"User Uid :" + userUid);
-            userDisplayName = user.getDisplayName();
-            Log.e(TAG,"User display name :" + userDisplayName);
-            final DocumentReference userDocumentReference = mFirestore.collection("users").document(userUid);
-
-            userDocumentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if(task.isSuccessful()){
-                        DocumentSnapshot doc = task.getResult();
-                        if(doc.exists()){
-                            Log.e(TAG,"Document exist" + doc.getData());
-                        } else {
-                            Map<String, Object> userData = new HashMap<>();
-                            if (!userDisplayName.isEmpty()) {
-                                userData.put("display_name", userDisplayName);
-                                userDocumentReference.set(userData);
-                            }
-                        }
-                    }
-                }
-            })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-
-                        }
-                    });
-        }
-
-
-        newListButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addList();
-            }
-        });
-
-
-        /*setting display name for users from google signin
-        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
-        if(acct!=null){
-            Log.e("OurShoppingList","User display name:"+ acct.getDisplayName());
-
-            String actualName = acct.getDisplayName();
-            if(actualName.equals(null)){
-               showSettingDisplayNameDialog();
-            }
-
-        }*/
-
-        //setting display name for users from normal signin
-        if(user!=null){
-            Log.e("OurShoppingList","User display name:"+ user.getDisplayName());
-
-            String actualName = user.getDisplayName();
-
-            if(actualName.equals("")){
-               showSettingDisplayNameDialog();
-            }
+    private void updateUI(FirebaseUser user){
+        if(user==null){
+            Intent goBack = new Intent(ListActivity.this, MainActivity.class);
+            finish();
+            startActivity(goBack);
         }
     }
 
@@ -273,10 +217,7 @@ public class ListActivity extends AppCompatActivity   {
                         }
                     }
                 })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
+                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
                 })
                 .create()
                 .show();
@@ -285,17 +226,15 @@ public class ListActivity extends AppCompatActivity   {
 
     private void setupFirebaseListener(){
         Log.e(TAG, "setupFirebaseListener: setting up the auth state listener");
-        mAuthStateListener= new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser mFirebaseUser = firebaseAuth.getCurrentUser();
-                if(mFirebaseUser !=null){
-                    userUid = mFirebaseUser.getUid();
-                    user = mFirebaseUser;
-                    Log.e(TAG,"User UID: "+ userUid);
-                }else{
-                    Log.e(TAG,"We don't get a user :(");
-                }
+        mAuthStateListener= firebaseAuth -> {
+            FirebaseUser mFirebaseUser = firebaseAuth.getCurrentUser();
+            if(mFirebaseUser !=null){
+                userUid = mFirebaseUser.getUid();
+                user = mFirebaseUser;
+                Log.e(TAG,"User UID: "+ userUid);
+            }else{
+                Log.e(TAG,"We don't get a user :(");
+                updateUI(user);
             }
         };
     }
@@ -324,17 +263,14 @@ public class ListActivity extends AppCompatActivity   {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Logout")
                 .setMessage("Do you want to logout?")
-                .setPositiveButton("Logout", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        FirebaseAuth.getInstance().signOut();
-                        Log.e(TAG,"SIGNED OUT");
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        intent.putExtra("logout_key","Logout");
-                        startActivity(intent);
-                        Log.e("OurShoppingList","Dialog logout button clicked");
-                    }
+                .setPositiveButton("Logout", (dialog, which) -> {
+                    FirebaseAuth.getInstance().signOut();
+                    Log.e(TAG,"SIGNED OUT");
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("logout_key","Logout");
+                    startActivity(intent);
+                    Log.e("OurShoppingList","Dialog logout button clicked");
                 })
                 .setNegativeButton("NO", null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
