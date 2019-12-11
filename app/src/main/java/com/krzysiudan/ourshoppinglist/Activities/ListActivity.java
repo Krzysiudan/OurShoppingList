@@ -32,9 +32,11 @@ import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
 import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterShoppingList;
 import com.krzysiudan.ourshoppinglist.R;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
@@ -105,7 +107,7 @@ public class ListActivity extends AppCompatActivity   {
 
         updateUI(mAuth.getCurrentUser());
         Log.e(TAG,"ON START");
-        mRecyclerAdapter = new RecyclerAdapterShoppingList(this,mFirestore,"elo",this);
+        mRecyclerAdapter = new RecyclerAdapterShoppingList(this);
         mRecyclerView.setAdapter(mRecyclerAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setClickable(true);
@@ -185,35 +187,30 @@ public class ListActivity extends AppCompatActivity   {
                             mShoppingList.setOwner_id(userUid);
                             Log.e(TAG, "User Uid:" +userUid);
 
-                            mFirestore.collection("ShoppingLists")
-                                    .add(mShoppingList)
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        @Override
-                                        public void onSuccess(DocumentReference documentReference) {
-                                            Log.e(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                            Map<String,Object> userMap = new HashMap<>();
-                                            userMap.put("user_ID",userUid);
-                                            documentReference.collection("users_allowed").document(userUid)
-                                                    .set(userMap)
-                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                     public void onSuccess(Void aVoid) {
-                                                         Log.w(TAG, "User added to allowed users");
-                                                    }
-                                                  }).addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.w(TAG, "Error with adding user to allowed users",e);
-                                                }
-                                            });
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w(TAG, "Error adding document",e);
-                                        }
-                                    });
+                            WriteBatch mWriteBatch = mFirestore.batch();
+
+                            DocumentReference toUser = mFirestore.collection("users/"+userUid+"/usedLists").document();
+                            mWriteBatch.set(toUser,mShoppingList);
+
+                            DocumentReference toShoppingLists = mFirestore.document("ShoppingLists/"+toUser.getId());
+                            mWriteBatch.set(toShoppingLists,mShoppingList);
+
+                            DocumentReference addUserAllowed = mFirestore.document("ShoppingLists/"+toUser.getId()+"/usersAllowed/"+userUid);
+                            Map<String,Object> map = new HashMap<>();
+                            map.put("User ID",userUid);
+                            mWriteBatch.set(addUserAllowed,map);
+
+                            mWriteBatch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Log.d(TAG,"Successfully added list");
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d(TAG,"Failed with adding list");
+                                }
+                            });
                         }
                     }
                 })

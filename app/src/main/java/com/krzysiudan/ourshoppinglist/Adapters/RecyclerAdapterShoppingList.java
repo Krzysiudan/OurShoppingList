@@ -23,6 +23,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -45,18 +47,19 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
     private Activity mActivity;
     private FirebaseFirestore mFirestore;
-    private CollectionReference collectionReference;
-    private String mDisplayName;
+    private FirebaseUser mFirebaseUser;
+    private FirebaseAuth mAuth;
     private ArrayList<DocumentSnapshot> mSnapshotList;
     private Context context;
     private ListenerRegistration mListenerRegistration;
 
-    public RecyclerAdapterShoppingList(Activity activity, FirebaseFirestore mFirestore, String name, final Context context) {
+    public RecyclerAdapterShoppingList(Activity activity) {
         mActivity = activity;
-        mDisplayName = name;
-        this.mFirestore = mFirestore;
+        this.mFirestore = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mAuth.getCurrentUser();
         mSnapshotList = new ArrayList<>();
-        this.context = context;
+        this.context = activity.getApplicationContext();
     }
 
     @Override
@@ -68,7 +71,8 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        collectionReference = mFirestore.collection("ShoppingLists");
+        CollectionReference collectionReference;
+        collectionReference = mFirestore.collection("users/"+mFirebaseUser.getUid()+"/usedLists");
         mListenerRegistration = collectionReference
                 .orderBy("timestamp", Query.Direction.ASCENDING)
                 .addSnapshotListener(this);
@@ -265,7 +269,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     }
 
     private DocumentReference getDocumentReference(String key){
-        return mFirestore.document("ShoppingLists/"+key);
+        return mFirestore.document("users/"+mFirebaseUser.getUid()+"usedLists/"+key);
     }
 
     private String getListKey(int position){

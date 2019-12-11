@@ -69,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        mAuth=FirebaseAuth.getInstance();
+
         mCallbackManager = CallbackManager.Factory.create();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -202,8 +204,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
+        updateUI(mAuth.getCurrentUser());
         super.onStart();
     }
 
