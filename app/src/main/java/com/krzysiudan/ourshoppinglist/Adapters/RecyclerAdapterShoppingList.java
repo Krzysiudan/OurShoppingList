@@ -6,7 +6,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -38,8 +45,11 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.krzysiudan.ourshoppinglist.Activities.ActivityMainItems;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
+import com.krzysiudan.ourshoppinglist.Fragments.DialogShareList;
 import com.krzysiudan.ourshoppinglist.R;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAdapterShoppingList.ViewHolder> implements  EventListener<QuerySnapshot> {
 
@@ -72,7 +82,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
         CollectionReference collectionReference;
-        collectionReference = mFirestore.collection("users/"+mFirebaseUser.getUid()+"/usedLists");
+        collectionReference = mFirestore.collection("users/"+mFirebaseUser.getEmail()+"/usedLists");
         mListenerRegistration = collectionReference
                 .orderBy("timestamp", Query.Direction.ASCENDING)
                 .addSnapshotListener(this);
@@ -182,7 +192,8 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                     Log.e(TAG, "Options item clicked: remove, position clicked : " +getLayoutPosition());
                     return true;
                 case R.id.menu_add_new_user:
-                    //addUser(viewHolder.getLayoutPosition());
+                    addUser(getLayoutPosition());
+                    return true;
                 default:
                     return false;
             }
@@ -343,83 +354,29 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
 
 
-   /* private void addUser(final int position){
-        final String key = mSnapshotList.get(position).getId();
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = mActivity.getLayoutInflater();
-        final View alertView = inflater.inflate(R.layout.dialog_custom_add_list,null);
-        TextView mTextView = alertView.findViewById(R.id.alert_textView);
-        mTextView.setText(R.string.alert_dialog_share_list);
-
-        builder.setView(alertView)
-                .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        EditText alert_editText = (EditText) alertView.findViewById(R.id.alert_editText);
-                        final String userName = alert_editText.getText().toString();
-                        final String userId = getUserId(userName);
-
-                        if(!userName.equals("")){
-                            if(userId.equals("")){
-                                final DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("ShoppingLists").document(key).collection("users_allowed").document(userId);
-                                Map<String, Object> data = new HashMap<>();
-                                data.put("user_ID",userName);
-                                mDocumentReference
-                                        .set(data)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d(TAG, "User added successfully :" +userName);
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.d(TAG, "Error adding user : " + e);
-                                            }
-                                        });
-                            }
-                        }
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                })
-                .create()
-                .show();
-
-
-
-
-        DocumentReference docRef = FirebaseFirestore.getInstance().document("ShoppingLists/"+key+"");
+    private void addUser(final int position){
+        final String key = getListKey(position);
+       showAlertDialog(key);
 
     }
-*/
 
-    private String getUserId (String userName){
-        final String[] userId = new String[1];
-        CollectionReference mCollectionReference = mFirestore.collection("users");
-        mCollectionReference
-                .whereEqualTo("display_name", userName)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for(QueryDocumentSnapshot document: task.getResult()){
-                                userId[0] = document.getId();
-                                Log.d(TAG, "User exist, id: " + userId[0]);
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting user: " + task.getException());
-                            userId[0] ="";
+    private void showAlertDialog(String key){
+        Bundle mBundle = new Bundle();
+        mBundle.putString("key",key);
 
-                        }
-                    }
-                });
-        return userId[0];
+        FragmentManager fm = ((AppCompatActivity)mActivity).getSupportFragmentManager();
+        FragmentTransaction mFragmentTransaction = fm.beginTransaction();
+        Fragment old = fm.findFragmentByTag("Share_Dialog");
+
+        if(old instanceof DialogShareList){
+            Log.d(TAG,"Fragment already exist");
+            mFragmentTransaction.remove(old);
+        }
+            DialogShareList dialog = DialogShareList.newInstance();
+            dialog.setArguments(mBundle);
+            mFragmentTransaction.addToBackStack(null);
+            dialog.show(mFragmentTransaction,"Share_Dialog");
+
     }
 
     private void logMessage(String log){

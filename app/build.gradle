@@ -50,6 +50,7 @@ dependencies {
     implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
     implementation 'com.google.android.gms:play-services-auth:17.0.0'// AnimatedVectorDrawableCompat
     implementation 'com.jakewharton:butterknife:10.2.0'
+    implementation 'com.techyourchance:dialoghelper:0.9.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.0'
 }
 

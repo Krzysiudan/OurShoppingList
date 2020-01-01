@@ -15,6 +15,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
@@ -38,8 +41,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterShoppingList;
+import com.krzysiudan.ourshoppinglist.Fragments.DialogShareList;
 import com.krzysiudan.ourshoppinglist.R;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
+import com.techyourchance.dialoghelper.DialogHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +60,7 @@ public class ListActivity extends AppCompatActivity   {
     public static final String TAG = "ListActivityLog";
 
     private String userUid;
+    private String userEmail;
     private FirebaseFirestore mFirestore;
     private DatabaseReference mDatabaseReference;
     private FirebaseUser user;
@@ -147,8 +153,8 @@ public class ListActivity extends AppCompatActivity   {
                     }
                 })
                 .show();
-
     }
+
     private void updateDisplayName(String name){
         UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
                 .setDisplayName(name)
@@ -168,6 +174,7 @@ public class ListActivity extends AppCompatActivity   {
     }
 
     private void addList(){
+
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -189,15 +196,15 @@ public class ListActivity extends AppCompatActivity   {
 
                             WriteBatch mWriteBatch = mFirestore.batch();
 
-                            DocumentReference toUser = mFirestore.collection("users/"+userUid+"/usedLists").document();
+                            DocumentReference toUser = mFirestore.collection("users/"+userEmail+"/usedLists").document();
                             mWriteBatch.set(toUser,mShoppingList);
 
                             DocumentReference toShoppingLists = mFirestore.document("ShoppingLists/"+toUser.getId());
                             mWriteBatch.set(toShoppingLists,mShoppingList);
 
-                            DocumentReference addUserAllowed = mFirestore.document("ShoppingLists/"+toUser.getId()+"/usersAllowed/"+userUid);
+                            DocumentReference addUserAllowed = mFirestore.document("ShoppingLists/"+toUser.getId()+"/usersAllowed/"+userEmail);
                             Map<String,Object> map = new HashMap<>();
-                            map.put("User ID",userUid);
+                            map.put(userEmail,true);
                             mWriteBatch.set(addUserAllowed,map);
 
                             mWriteBatch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -219,6 +226,8 @@ public class ListActivity extends AppCompatActivity   {
                 .create()
                 .show();
         Log.e("OurShoppingList","New list added");
+
+
     }
 
     private void setupFirebaseListener(){
@@ -226,8 +235,9 @@ public class ListActivity extends AppCompatActivity   {
         mAuthStateListener= firebaseAuth -> {
             FirebaseUser mFirebaseUser = firebaseAuth.getCurrentUser();
             if(mFirebaseUser !=null){
-                userUid = mFirebaseUser.getUid();
                 user = mFirebaseUser;
+                userUid = user.getUid();
+                userEmail = user.getEmail();
                 Log.e(TAG,"User UID: "+ userUid);
             }else{
                 Log.e(TAG,"We don't get a user :(");

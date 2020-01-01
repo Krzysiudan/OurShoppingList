@@ -40,4 +40,10 @@
     <string name="button_register">Nie masz jeszcze konta? Zarejetruj się</string>
     <string name="have_account_already_login">Masz już konto? Zaloguj się</string>
     <string name="button_sign_up">Stwórz konto</string>
+    <string name="share_your_list_alert_dialog">Share your list</string>
+    <string name="friend_email">Friend email</string>
+    <string name="share_with_friend">Udostępnij znajomym</string>
+    <string name="share_with_your_friend">Podziel się ze znajomymi</string>
+    <string name="firend_email">Email znajomego</string>
+    <string name="add">dodaj</string>
 </resources>

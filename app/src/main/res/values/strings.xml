@@ -43,6 +43,12 @@
     <string name="fb_login_protocol_scheme" translatable="false">fb446453899587830</string>
     <string name="have_account_already_login">Have account already? Login</string>
     <string name="button_sign_up">SIGN UP</string>
+    <string name="share_your_list_alert_dialog">Share your list</string>
+    <string name="add">add</string>
+    <string name="firend_email">Friend\'s email</string>
+    <string name="share_with_your_friend">Share with your friend</string>
+    <string name="friend_email">Friend email</string>
+    <string name="share_with_friend">Share with friend</string>
 
 
 </resources>

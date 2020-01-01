@@ -30,6 +30,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseApp;
@@ -39,6 +40,9 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.krzysiudan.ourshoppinglist.DatabaseItems.userModel;
 import com.krzysiudan.ourshoppinglist.R;
 
 import butterknife.BindView;
@@ -53,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private CallbackManager mCallbackManager;
+    private FirebaseFirestore mFirebaseFirestore;
 
     @BindView(R.id.textView_email_register) AutoCompleteTextView inputEmail;
     @BindView(R.id.textView_password_register) EditText passwordText;
@@ -70,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         mAuth=FirebaseAuth.getInstance();
+        mFirebaseFirestore = FirebaseFirestore.getInstance();
 
         mCallbackManager = CallbackManager.Factory.create();
 
@@ -114,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            createUserModelInDatabase();
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -186,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
                         if(task.isSuccessful()){
                             Log.d(TAG,"signedInWithCredential:Success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            createUserModelInDatabase();
                             updateUI(user);
                         }else{
                             Log.w(TAG,"SignInWithCredential:failure", task.getException());
@@ -230,12 +238,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 Log.e("OurShoppingList","SignInWithEmail onComplete: "+task.isSuccessful());
-
                 if(!task.isSuccessful()){
                     Log.e("OurShoppingList","Problem singing in:"+task.getException());
                     showErrorDialog("There was a problem with singing in");
+                    createUserModelInDatabase();
                     updateUI(null);
                 }else{
+
                     updateUI(mAuth.getCurrentUser());
                 }
             }
@@ -250,5 +259,25 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton(android.R.string.ok,null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+    }
+
+    private void createUserModelInDatabase(){
+        String userEmail = mAuth.getCurrentUser().getEmail();
+        String userName = mAuth.getCurrentUser().getDisplayName();
+        String tokenId = mAuth.getCurrentUser().getUid();
+
+        userModel mUserModel = new userModel(tokenId,userEmail,userName);
+
+        mFirebaseFirestore.collection("users").document(userEmail).set(mUserModel).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d(TAG,"User succesfully created");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG,"User creation failed");
+            }
+        });
     }
 }
