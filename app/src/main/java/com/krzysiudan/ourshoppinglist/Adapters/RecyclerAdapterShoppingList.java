@@ -356,13 +356,14 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
 
     private void addUser(final int position){
         final String key = getListKey(position);
-       showAlertDialog(key);
-
+        ShoppingList mList = getItem(position);
+       showAlertDialog(mList ,key);
     }
 
-    private void showAlertDialog(String key){
+    private void showAlertDialog(ShoppingList list, String key){
         Bundle mBundle = new Bundle();
         mBundle.putString("key",key);
+        mBundle.putParcelable("listToShare",list);
 
         FragmentManager fm = ((AppCompatActivity)mActivity).getSupportFragmentManager();
         FragmentTransaction mFragmentTransaction = fm.beginTransaction();

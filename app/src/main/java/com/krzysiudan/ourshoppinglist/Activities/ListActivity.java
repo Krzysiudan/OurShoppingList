@@ -202,7 +202,7 @@ public class ListActivity extends AppCompatActivity   {
                             DocumentReference toShoppingLists = mFirestore.document("ShoppingLists/"+toUser.getId());
                             mWriteBatch.set(toShoppingLists,mShoppingList);
 
-                            DocumentReference addUserAllowed = mFirestore.document("ShoppingLists/"+toUser.getId()+"/usersAllowed/"+userEmail);
+                            DocumentReference addUserAllowed = mFirestore.document("ShoppingLists/"+toUser.getId()+"/users_allowed/"+userEmail);
                             Map<String,Object> map = new HashMap<>();
                             map.put(userEmail,true);
                             mWriteBatch.set(addUserAllowed,map);
