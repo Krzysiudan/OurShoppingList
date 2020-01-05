@@ -10,8 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,12 +31,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterShoppingList;
 import com.krzysiudan.ourshoppinglist.Fragments.DialogAddList;
-import com.krzysiudan.ourshoppinglist.Fragments.DialogChangeName;
 import com.krzysiudan.ourshoppinglist.R;
 
 
@@ -48,17 +42,13 @@ import butterknife.OnClick;
 
 public class ListActivity extends AppCompatActivity {
 
-    public static final String MOTHER_NAME="mothername";
-    public static final String DATA = "data";
     public static final String TAG = "ListActivityLog";
 
     private String userUid;
 
 
 
-    private String userEmail;
-    private FirebaseFirestore mFirestore;
-    private DatabaseReference mDatabaseReference;
+
     private FirebaseUser user;
     private FirebaseAuth mAuth;
     private RecyclerAdapterShoppingList mRecyclerAdapter;
@@ -81,8 +71,6 @@ public class ListActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference();
-        mFirestore = FirebaseFirestore.getInstance();
 
         setupFirebaseListener();
 
@@ -131,44 +119,6 @@ public class ListActivity extends AppCompatActivity {
     }
 
 
-    private void showSettingDisplayNameDialog(){
-        LayoutInflater inflater = this.getLayoutInflater();
-        final View alertView = inflater.inflate(R.layout.dialog_custom_add_list,null);
-        final EditText alert_editText = (EditText) alertView.findViewById(R.id.alert_editText);
-        alert_editText.setHint("Write your name");
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(alertView)
-                .setTitle("You are new!")
-                .setMessage("Set your display name")
-                .setPositiveButton("Set", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String name = alert_editText.getText().toString();
-                        updateDisplayName(name);
-
-                    }
-                })
-                .show();
-    }
-
-    private void updateDisplayName(String name){
-        UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
-                .setDisplayName(name)
-                .build();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        user.updateProfile(profileChangeRequest).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    Log.e(TAG,"User profile updated");
-                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                    Log.e(TAG,"User display name:"+ user.getDisplayName());
-                }
-            }
-        });
-
-    }
-
     private void addList(){
 
         FragmentManager fm = getSupportFragmentManager();
@@ -194,7 +144,6 @@ public class ListActivity extends AppCompatActivity {
             if(mFirebaseUser !=null){
                 user = mFirebaseUser;
                 userUid = user.getUid();
-                userEmail = user.getEmail();
                 Log.e(TAG,"User UID: "+ userUid);
             }else{
                 Log.e(TAG,"We don't get a user :(");
