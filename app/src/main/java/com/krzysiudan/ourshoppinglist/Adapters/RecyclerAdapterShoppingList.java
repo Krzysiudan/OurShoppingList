@@ -1,13 +1,10 @@
 package com.krzysiudan.ourshoppinglist.Adapters;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -23,13 +20,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -41,7 +33,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.krzysiudan.ourshoppinglist.Activities.ActivityMainItems;
@@ -50,8 +41,6 @@ import com.krzysiudan.ourshoppinglist.Fragments.DialogChangeName;
 import com.krzysiudan.ourshoppinglist.Fragments.DialogShareList;
 import com.krzysiudan.ourshoppinglist.R;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAdapterShoppingList.ViewHolder> implements  EventListener<QuerySnapshot>, DialogChangeName.OnNameInsertedListener {
 
@@ -220,7 +209,6 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     public void onBindViewHolder(@NonNull final RecyclerAdapterShoppingList.ViewHolder viewHolder, int i) {
         DocumentSnapshot snapshot = mSnapshotList.get(viewHolder.getAdapterPosition());
         final EditText editTextNameOfAList = viewHolder.nameEditView;
-        final ImageButton imageButton = viewHolder.mImageButtonPopupMenu;
 
         if (snapshot.exists()) {
             String listName = getListNameFrom(snapshot);
@@ -248,17 +236,12 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         return listName;
     }
 
-            public void cleanUp() {
-                //TODO detach listener
-            }
-
-
 
     public int getItemCount() {
         return mSnapshotList.size();
     }
 
-    public ShoppingList getItem(int position) {
+    private ShoppingList getItem(int position) {
         return mSnapshotList.get(position).toObject(ShoppingList.class);
     }
 
@@ -266,19 +249,10 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         final String key = getListKey(position);
         DocumentReference docRef = getDocumentReference(key);
         docRef.delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        logMessage("List with key: " + key + "has been removed on position : " +position);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        logMessage("Failure removing list with key: " + key);
-
-                    }
-                });
+                .addOnSuccessListener(aVoid ->
+                        logMessage("List with key: " + key + "has been removed on position : " +position))
+                .addOnFailureListener(e ->
+                        logMessage("Failure removing list with key: " + key));
                 mSnapshotList.remove(position);
                 notifyItemRemoved(position);
     }
@@ -330,21 +304,18 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                     Log.d("TAG", "Name succesfully changed");
 
                         mReferenceFromList.get()
-                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if(task.isSuccessful()){
-                                            DocumentSnapshot doc = task.getResult();
-                                            if(doc.exists()){
-                                                Log.e(TAG, "changeName method : Document Snapshot exist ");
-                                                mSnapshotList.set(position,doc);
-                                                notifyItemChanged(position);
-                                            } else {
-                                                Log.e(TAG, "changeName method : Document Snapshot not exist ");
-                                            }
+                                .addOnCompleteListener(task1 -> {
+                                    if(task1.isSuccessful()){
+                                        DocumentSnapshot doc = task1.getResult();
+                                        if(doc.exists()){
+                                            Log.e(TAG, "changeName method : Document Snapshot exist ");
+                                            mSnapshotList.set(position,doc);
+                                            notifyItemChanged(position);
                                         } else {
-                                            Log.e(TAG, "changeName method : get failed with : " + task.getException());
+                                            Log.e(TAG, "changeName method : Document Snapshot not exist ");
                                         }
+                                    } else {
+                                        Log.e(TAG, "changeName method : get failed with : " + task1.getException());
                                     }
                                 });
                 })
@@ -385,7 +356,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         Log.d(TAG,log);
     }
 
-    public void stopListeningToChanges(){
+    private void stopListeningToChanges(){
         mListenerRegistration.remove();
     }
 
