@@ -29,37 +29,33 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.WriteBatch;
 import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterShoppingList;
-import com.krzysiudan.ourshoppinglist.Fragments.DialogShareList;
+import com.krzysiudan.ourshoppinglist.Fragments.DialogAddList;
+import com.krzysiudan.ourshoppinglist.Fragments.DialogChangeName;
 import com.krzysiudan.ourshoppinglist.R;
-import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
-import com.techyourchance.dialoghelper.DialogHelper;
 
-import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ListActivity extends AppCompatActivity   {
+public class ListActivity extends AppCompatActivity {
 
     public static final String MOTHER_NAME="mothername";
     public static final String DATA = "data";
     public static final String TAG = "ListActivityLog";
 
     private String userUid;
+
+
+
     private String userEmail;
     private FirebaseFirestore mFirestore;
     private DatabaseReference mDatabaseReference;
@@ -175,59 +171,20 @@ public class ListActivity extends AppCompatActivity   {
 
     private void addList(){
 
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction mFragmentTransaction = fm.beginTransaction();
+        Fragment old = fm.findFragmentByTag("Add_List_Dialog");
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        final View alertView = inflater.inflate(R.layout.dialog_custom_add_list,null);
-
-        builder.setView(alertView)
-                .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        EditText alert_editText = (EditText) alertView.findViewById(R.id.alert_editText);
-                        String list_name = alert_editText.getText().toString();
-
-                        if(!list_name.equals("")){
-
-                            ShoppingList mShoppingList = new ShoppingList();
-                            mShoppingList.setList_name(list_name);
-                            mShoppingList.setOwner_id(userUid);
-                            Log.e(TAG, "User Uid:" +userUid);
-
-                            WriteBatch mWriteBatch = mFirestore.batch();
-
-                            DocumentReference toUser = mFirestore.collection("users/"+userEmail+"/usedLists").document();
-                            mWriteBatch.set(toUser,mShoppingList);
-
-                            DocumentReference toShoppingLists = mFirestore.document("ShoppingLists/"+toUser.getId());
-                            mWriteBatch.set(toShoppingLists,mShoppingList);
-
-                            DocumentReference addUserAllowed = mFirestore.document("ShoppingLists/"+toUser.getId()+"/users_allowed/"+userEmail);
-                            Map<String,Object> map = new HashMap<>();
-                            map.put(userEmail,true);
-                            mWriteBatch.set(addUserAllowed,map);
-
-                            mWriteBatch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    Log.d(TAG,"Successfully added list");
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.d(TAG,"Failed with adding list");
-                                }
-                            });
-                        }
-                    }
-                })
-                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
-                })
-                .create()
+        if(old instanceof DialogAddList){
+            Log.d(TAG,"Fragment already exist");
+            mFragmentTransaction.remove(old);
+        }
+        DialogAddList dialog = DialogAddList.newInstance();
+        mFragmentTransaction.addToBackStack(null);
+        dialog.show(mFragmentTransaction,"Add_List_Dialog");
+        View view = findViewById(R.id.activity_list_coordinatorLayout);
+        Snackbar.make(view,"List added",Snackbar.LENGTH_SHORT)
                 .show();
-        Log.e("OurShoppingList","New list added");
-
-
     }
 
     private void setupFirebaseListener(){
@@ -288,5 +245,7 @@ public class ListActivity extends AppCompatActivity   {
     public void onBackPressed() {
         LogOut();
     }
+
+
 }
 

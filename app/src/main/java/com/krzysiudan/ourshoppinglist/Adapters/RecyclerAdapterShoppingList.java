@@ -43,15 +43,17 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 import com.krzysiudan.ourshoppinglist.Activities.ActivityMainItems;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
+import com.krzysiudan.ourshoppinglist.Fragments.DialogChangeName;
 import com.krzysiudan.ourshoppinglist.Fragments.DialogShareList;
 import com.krzysiudan.ourshoppinglist.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAdapterShoppingList.ViewHolder> implements  EventListener<QuerySnapshot> {
+public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAdapterShoppingList.ViewHolder> implements  EventListener<QuerySnapshot>, DialogChangeName.OnNameInsertedListener {
 
     public static final String TAG = "OurShoppingList";
 
@@ -122,6 +124,8 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
             }
         }
     }
+
+
 
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,PopupMenu.OnMenuItemClickListener  {
@@ -280,7 +284,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     }
 
     private DocumentReference getDocumentReference(String key){
-        return mFirestore.document("users/"+mFirebaseUser.getUid()+"usedLists/"+key);
+        return mFirestore.document("users/"+mFirebaseUser.getEmail()+"/usedLists/"+key);
     }
 
     private String getListKey(int position){
@@ -288,67 +292,64 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     }
 
     private void changeName(final int position) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = mActivity.getLayoutInflater();
-        final View alertView = inflater.inflate(R.layout.dialog_custom_add_list,null);
-        TextView mTextView = alertView.findViewById(R.id.alert_textView);
-        mTextView.setText(R.string.TextViewChangingListNameAlert);
+        String key = getListKey(position);
 
-//TODO add refreshing name after changing in database, Zmienić dane w arraylist mSnapshotlist aby działało
+        Bundle mBundle = new Bundle();
+        mBundle.putString("key",key);
+        mBundle.putInt("position",position);
 
-        builder.setView(alertView)
-                .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        EditText alert_editText = (EditText) alertView.findViewById(R.id.alert_editText);
-                        final String list_name = alert_editText.getText().toString();
+        FragmentManager fm = ((AppCompatActivity)mActivity).getSupportFragmentManager();
+        FragmentTransaction mFragmentTransaction = fm.beginTransaction();
+        Fragment old = fm.findFragmentByTag("changeNameDialog");
 
-                        if(!list_name.equals("")){
-                            final String key = getListKey(position);
-                            final DocumentReference mDocumentReference = getDocumentReference(key);
-                            mDocumentReference.update("list_name",list_name)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.e(TAG,"List name changed to: " + list_name +" , list key: "+key);
-                                            mDocumentReference
-                                                    .get()
-                                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                            if(task.isSuccessful()){
-                                                                DocumentSnapshot doc = task.getResult();
-                                                                if(doc.exists()){
-                                                                    Log.e(TAG, "changeName method : Document Snapshot exist ");
-                                                                    mSnapshotList.set(position,doc);
-                                                                    notifyItemChanged(position);
-                                                                } else {
-                                                                    Log.e(TAG, "changeName method : Document Snapshot not exist ");
-                                                                }
-                                                            } else {
-                                                                Log.e(TAG, "changeName method : get failed with : " + task.getException());
-                                                            }
-                                                        }
-                                                    });
+        if(old instanceof DialogChangeName){
+            Log.d(TAG,"Fragment already exist");
+            mFragmentTransaction.remove(old);
+        }
+        DialogChangeName dialog = DialogChangeName.newInstance();
+        dialog.setArguments(mBundle);
+        mFragmentTransaction.addToBackStack(null);
+        dialog.show(mFragmentTransaction,"ChangeNameDialog");
+        dialog.setOnNameInsertedListener(this);
+
+
+    }
+
+    @Override
+    public void onNameInserted(String name, String key, int position) {
+        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+        DocumentReference mReferenceFromUser = mFirestore.document("users/"+mUser.getEmail()+"/usedLists/"+key);
+        DocumentReference mReferenceFromList = mFirestore.document("ShoppingLists/"+key);
+        WriteBatch mWriteBatch = mFirestore.batch();
+        mWriteBatch.update(mReferenceFromUser,"list_name",name);
+
+        mWriteBatch.update(mReferenceFromList,"list_name",name);
+
+        mWriteBatch.commit()
+                .addOnCompleteListener(task -> {
+                    Log.d("TAG", "Name succesfully changed");
+
+                        mReferenceFromList.get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if(task.isSuccessful()){
+                                            DocumentSnapshot doc = task.getResult();
+                                            if(doc.exists()){
+                                                Log.e(TAG, "changeName method : Document Snapshot exist ");
+                                                mSnapshotList.set(position,doc);
+                                                notifyItemChanged(position);
+                                            } else {
+                                                Log.e(TAG, "changeName method : Document Snapshot not exist ");
+                                            }
+                                        } else {
+                                            Log.e(TAG, "changeName method : get failed with : " + task.getException());
                                         }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.d(TAG,"List name not changed, list key: "+key);
-
-                                        }
-                                    });
-                        }
-                    }
+                                    }
+                                });
                 })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                })
-                .create()
-                .show();
+                .addOnFailureListener(e ->
+                        Log.d(TAG,"Name changing failure"));
     }
 
 

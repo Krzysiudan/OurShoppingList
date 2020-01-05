@@ -1,25 +1,18 @@
 package com.krzysiudan.ourshoppinglist.Fragments;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ListActivity;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
+
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
@@ -29,17 +22,13 @@ import com.krzysiudan.ourshoppinglist.R;
 import java.util.HashMap;
 import java.util.Map;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 public class DialogShareList extends DialogFragment {
 
     private final String TAG = "FragmentDialogShare";
 
 
     public static DialogShareList newInstance() {
-        DialogShareList frag = new DialogShareList();
-        return frag;
+        return new DialogShareList();
     }
 
 
