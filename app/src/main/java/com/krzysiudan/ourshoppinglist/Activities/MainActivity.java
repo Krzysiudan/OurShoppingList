@@ -2,6 +2,7 @@ package com.krzysiudan.ourshoppinglist.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -38,9 +39,9 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.krzysiudan.ourshoppinglist.DatabaseItems.userModel;
 import com.krzysiudan.ourshoppinglist.R;
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore mFirebaseFirestore;
 
     @BindView(R.id.textView_email_register) AutoCompleteTextView inputEmail;
-    @BindView(R.id.textView_password_register) EditText passwordText;
+    @BindView(R.id.textView_password_register) EditText inputPassword;
     @BindView(R.id.button_sign_in) Button buttonSignIn;
     @BindView(R.id.google_sign_in) SignInButton googleSignIn;
     @BindView(R.id.button_go_to_register) Button buttonRegister;
@@ -142,13 +143,13 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_sign_in)
     public void logInButton(View view){
-        firebaseAuthWithEmailAndPassword();
+        attemptLogin();
     }
 
     @OnEditorAction(R.id.textView_password_register)
     public boolean logInEditor(TextView view, int i,KeyEvent keyEvent){
         if(i==R.integer.login || i == EditorInfo.IME_NULL){
-            firebaseAuthWithEmailAndPassword();
+            attemptLogin();
             return true;
         }
         return false;
@@ -228,9 +229,59 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void attemptLogin(){
+
+        //reset errors
+        inputEmail.setError(null);
+        inputPassword.setError(null);
+
+        String email = inputEmail.getText().toString();
+        String password = inputPassword.getText().toString();
+
+        boolean cancel = false;
+        View focusView =null;
+
+        //checking for valid inputPassword
+        if(TextUtils.isEmpty(password)|| !isPasswordValid(password)){
+            inputPassword.setError("Password too short, must be more than 6 characters");
+            focusView=inputPassword;
+            cancel=true;
+        }else{
+            Log.e(TAG,"Password is valid");
+        }
+
+        //check for a valid inputEmail address
+        if(TextUtils.isEmpty(email)){
+            inputEmail.setError("This Field is required");
+            focusView=inputEmail;
+            cancel=true;
+        }else if(!isEmailValid(email)){
+            inputEmail.setError("This email address is invalid");
+            focusView=inputEmail;
+            cancel=true;
+        }else{
+            Log.e(TAG,"Email is Valid");
+        }
+
+        if(cancel){
+            focusView.requestFocus();
+        }else{
+            firebaseAuthWithEmailAndPassword();
+        }
+
+    }
+
+    private boolean isEmailValid(String email){
+        return email.contains("@");
+    }
+
+    private boolean isPasswordValid(String password){
+        return password.length()>=6;
+    }
+
     private void firebaseAuthWithEmailAndPassword(){
         String email = inputEmail.getText().toString();
-        String password = passwordText.getText().toString();
+        String password = inputPassword.getText().toString();
 
         if(email.equals("")||password.equals("")) return;
         Toast.makeText(this, R.string.logginginprogress,Toast.LENGTH_SHORT).show();
@@ -239,12 +290,15 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 Log.e("OurShoppingList","SignInWithEmail onComplete: "+task.isSuccessful());
                 if(!task.isSuccessful()){
+                    if(task.getException() instanceof FirebaseAuthInvalidCredentialsException){
+                        showErrorDialog("The password is invalid or the user does not hava a password");
+                    }else{
+                        showErrorDialog("There was problem singing in, check your credentials again");
+                    }
                     Log.e("OurShoppingList","Problem singing in:"+task.getException());
-                    showErrorDialog("There was a problem with singing in");
-                    createUserModelInDatabase();
                     updateUI(mAuth.getCurrentUser());
                 }else{
-
+                    createUserModelInDatabase();
                     updateUI(mAuth.getCurrentUser());
                 }
             }
