@@ -8,6 +8,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -57,6 +59,10 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         ButterKnife.bind(this);
         mAuth = FirebaseAuth.getInstance();
+
+        SpannableStringBuilder str = new SpannableStringBuilder("Have account already? Login");
+        str.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 22, str.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        backToLogin.setText(str);
 
 
     }

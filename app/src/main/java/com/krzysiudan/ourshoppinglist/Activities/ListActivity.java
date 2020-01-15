@@ -72,7 +72,7 @@ public class ListActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mTitle.setText(R.string.Title);
+        mTitle.setText(R.string.activity_list_top_bar_tittle);
     }
 
 

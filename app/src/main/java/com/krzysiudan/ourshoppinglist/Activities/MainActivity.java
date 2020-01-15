@@ -2,6 +2,8 @@ package com.krzysiudan.ourshoppinglist.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -77,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth=FirebaseAuth.getInstance();
         mFirebaseFirestore = FirebaseFirestore.getInstance();
-
         mCallbackManager = CallbackManager.Factory.create();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -107,6 +108,10 @@ public class MainActivity extends AppCompatActivity {
                 updateUI(null);
             }
         });
+
+        SpannableStringBuilder str = new SpannableStringBuilder("Don\'t have account yet? Sign up");
+        str.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 24, str.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        buttonRegister.setText(str);
     }
 
     private void handleFacebookAccessToken(AccessToken token) {

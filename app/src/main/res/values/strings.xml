@@ -49,6 +49,7 @@
     <string name="share_with_your_friend">Share with your friend</string>
     <string name="friend_email">Friend email</string>
     <string name="share_with_friend">Share with friend</string>
+    <string name="activity_list_top_bar_tittle">Your Lists</string>
 
 
 </resources>
