@@ -127,8 +127,7 @@ public class ListActivity extends AppCompatActivity {
         mFragmentTransaction.addToBackStack(null);
         dialog.show(mFragmentTransaction,"Add_List_Dialog");
         View view = findViewById(R.id.activity_list_coordinatorLayout);
-        Snackbar.make(view,"List added",Snackbar.LENGTH_SHORT)
-                .show();
+
     }
 
     private void setupFirebaseListener(){

@@ -9,16 +9,8 @@ public class SingleItem {
 
     private String name;
     private String author;
-
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    private @ServerTimestamp Date timestamp;
+    private @ServerTimestamp
+    Date timestamp;
 
 
     public SingleItem(String name, String author, Date timestamp) {
@@ -44,5 +36,13 @@ public class SingleItem {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 }

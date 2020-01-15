@@ -17,13 +17,18 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.krzysiudan.ourshoppinglist.DatabaseItems.userModel;
 import com.krzysiudan.ourshoppinglist.R;
 
 import butterknife.BindView;
@@ -142,7 +147,11 @@ public class RegisterActivity extends AppCompatActivity {
 
                 if(!task.isSuccessful()){
                     Log.e(TAG,"Create user failed"+task.getException());
-                    showErrorDialog("Registration attempt failed");
+                    if(task.getException() instanceof FirebaseAuthUserCollisionException){
+                        showErrorDialog("This email adress is already in use ");
+                    }else {
+                        showErrorDialog("Registration attempt failed");
+                    }
                 }else{
                     Log.e(TAG,"Create user success"+task.getException());
                     FirebaseUser user = mAuth.getCurrentUser();
@@ -166,6 +175,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void updateUI(FirebaseUser user){
         if(user!=null) {
+            Toast.makeText(this.getApplicationContext(),"Account created happy shopping to you! :)",Toast.LENGTH_LONG).show();
+            createUserModelInDatabase();
             Intent goToTheApp = new Intent(RegisterActivity.this, ListActivity.class);
             finish();
             startActivity(goToTheApp);
@@ -174,6 +185,41 @@ public class RegisterActivity extends AppCompatActivity {
             finish();
             startActivity(getBack);
         }
+    }
+
+    private void showSnackbar(String message){
+        View.OnClickListener snackbarClickListener = new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+
+            }
+        };
+        View parentView = this.findViewById(R.id.layout_register_activity);
+        Snackbar.make(parentView,message,Snackbar.LENGTH_INDEFINITE)
+                .setAction(message,snackbarClickListener)
+                .setActionTextColor(getResources().getColor(R.color.accent))
+                .show();
+    }
+
+
+    private void createUserModelInDatabase(){
+        String userEmail = mAuth.getCurrentUser().getEmail();
+        String userName = mAuth.getCurrentUser().getDisplayName();
+        String tokenId = mAuth.getCurrentUser().getUid();
+
+        userModel mUserModel = new userModel(tokenId,userEmail,userName);
+
+        FirebaseFirestore.getInstance().collection("users").document(userEmail).set(mUserModel).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d(TAG,"User succesfully created");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG,"User creation failed");
+            }
+        });
     }
 
     @Override

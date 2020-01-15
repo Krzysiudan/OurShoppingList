@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("OurShoppingList","Problem singing in:"+task.getException());
                     showErrorDialog("There was a problem with singing in");
                     createUserModelInDatabase();
-                    updateUI(null);
+                    updateUI(mAuth.getCurrentUser());
                 }else{
 
                     updateUI(mAuth.getCurrentUser());

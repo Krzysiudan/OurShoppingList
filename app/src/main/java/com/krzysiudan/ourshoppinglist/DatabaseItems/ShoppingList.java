@@ -31,6 +31,14 @@ public class ShoppingList implements Parcelable {
 
     }
 
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
+
     public ShoppingList(Parcel in){
         Log.d("ShoppingList","Data deparcelling");
         list_name = in.readString();
@@ -58,10 +66,6 @@ public class ShoppingList implements Parcelable {
 
     public void setList_name(String list_name) {
         this.list_name = list_name;
-    }
-
-    public Date getTimestamp() {
-        return timestamp;
     }
 
 
