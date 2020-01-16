@@ -50,6 +50,7 @@
     <string name="friend_email">Friend email</string>
     <string name="share_with_friend">Share with friend</string>
     <string name="activity_list_top_bar_tittle">Your Lists</string>
+    <string name="toast_message_dialog_share_list_invitation_send">Invitation sent, invite another friend or close :)</string>
 
 
 </resources>
