@@ -46,4 +46,8 @@
     <string name="share_with_your_friend">Podziel się ze znajomymi</string>
     <string name="firend_email">Email znajomego</string>
     <string name="add">dodaj</string>
+    <string name="dialog_share_list_toast_when_no_such_email_in_database">We don/\'t know this friend, please check this email again :)</string>
+    <string name="activity_list_top_bar_tittle">Twoje listy</string>
+    <string name="toast_message_dialog_share_list_invitation_send">Zaproszenie wysłane, zaproś kolejnego znajomego lub zamknij :)</string>
+    <string name="dialog_share_list_toast_when_email_like_user_email">It\'s your email genius! :)</string>
 </resources>

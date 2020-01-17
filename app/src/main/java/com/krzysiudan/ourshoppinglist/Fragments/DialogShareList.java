@@ -84,11 +84,14 @@ public class DialogShareList extends DialogFragment {
                                     .addOnFailureListener(e -> Log.i("OurShoppingList", "Failed sharing list with friend"));
                         } else {
                             Log.e("OurShoppingList", "No such document");
+                            Toast.makeText(getActivity().getApplicationContext(),R.string.dialog_share_list_toast_when_no_such_email_in_database,Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         Log.e("OurShoppingList", "Get failed with: " + task.getException());
                     }
                 });
+            } else if(user.getEmail() == friendEmail){
+                Toast.makeText(getActivity().getApplicationContext(),(R.string.dialog_share_list_toast_when_email_like_user_email),Toast.LENGTH_SHORT).show();
             }
 
         });
