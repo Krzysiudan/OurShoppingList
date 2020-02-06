@@ -1,4 +1,4 @@
-package com.krzysiudan.ourshoppinglist.Fragments;
+package com.krzysiudan.ourshoppinglist.Fragments.Dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -15,11 +15,10 @@ import androidx.fragment.app.DialogFragment;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
-import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
+import com.krzysiudan.ourshoppinglist.Models.ShoppingList;
 import com.krzysiudan.ourshoppinglist.R;
 
 import java.util.HashMap;

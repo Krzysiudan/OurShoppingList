@@ -1,4 +1,4 @@
-package com.krzysiudan.ourshoppinglist.Fragments;
+package com.krzysiudan.ourshoppinglist.Fragments.Dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -14,14 +14,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
+import com.google.firebase.firestore.WriteBatch;
+import com.krzysiudan.ourshoppinglist.Models.ShoppingList;
 import com.krzysiudan.ourshoppinglist.R;
 
 import java.util.HashMap;
@@ -72,16 +72,26 @@ public class DialogShareList extends DialogFragment {
             if (!friendEmail.equals("") && user.getEmail() != friendEmail) {
                 final DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("users").document(friendEmail).collection("usedLists").document(key);
                 DocumentReference friendDocument = FirebaseFirestore.getInstance().collection("users").document(friendEmail);
+                DocumentReference usersAllowedDocument = FirebaseFirestore.getInstance().collection("ShoppingLists").document(key).collection("users_allowed").document(friendEmail);
                 friendDocument.get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot doc = task.getResult();
                         if (doc.exists()) {
-                            mDocumentReference.set(mShoppingList)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.i("OurShoppingList", "List Shared with friend");
-                                        Toast.makeText(getActivity().getApplicationContext(),R.string.toast_message_dialog_share_list_invitation_send,Toast.LENGTH_SHORT).show();
-                                    })
-                                    .addOnFailureListener(e -> Log.i("OurShoppingList", "Failed sharing list with friend"));
+                            WriteBatch mWriteBatch = FirebaseFirestore.getInstance().batch();
+                            mWriteBatch.set(mDocumentReference,mShoppingList);
+
+                            Map<String,Object> map = new HashMap<>();
+                            map.put(friendEmail,true);
+                            mWriteBatch.set(usersAllowedDocument,map);
+                            mWriteBatch.commit().addOnSuccessListener(aVoid -> {
+                                Log.i("OurShoppingList", "List Shared with friend");
+                                Toast.makeText(getActivity().getApplicationContext(),R.string.toast_message_dialog_share_list_invitation_send,Toast.LENGTH_SHORT).show();
+
+                            }).addOnFailureListener(e -> {
+                                Log.i("OurShoppingList", "Failed sharing list with friend");
+                                Toast.makeText(getActivity().getApplicationContext(),(R.string.toast_sth_went_wrong),Toast.LENGTH_SHORT).show();
+
+                            });
                         } else {
                             Log.e("OurShoppingList", "No such document");
                             Toast.makeText(getActivity().getApplicationContext(),R.string.dialog_share_list_toast_when_no_such_email_in_database,Toast.LENGTH_SHORT).show();

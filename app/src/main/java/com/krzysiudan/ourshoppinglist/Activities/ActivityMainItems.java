@@ -50,9 +50,7 @@ public class ActivityMainItems extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
         toolbarTittle.setText(R.string.products);
-
 
         motherListKey = getIntent().getStringExtra("MotherListName");
         Log.e("OurShoppingList","MOTHERLISTKEY: "+motherListKey);
@@ -62,8 +60,6 @@ public class ActivityMainItems extends AppCompatActivity {
         FragmentPlannedItems frag = new FragmentPlannedItems();
         frag.setArguments(bundle);
 
-
-
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         FragmentPagerAdapterItems mPagerAdapter =
                 new FragmentPagerAdapterItems(getSupportFragmentManager(),ActivityMainItems.this,
@@ -71,12 +67,7 @@ public class ActivityMainItems extends AppCompatActivity {
         viewPager.setAdapter(mPagerAdapter);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
-
-
     }
-
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

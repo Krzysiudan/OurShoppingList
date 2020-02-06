@@ -1,4 +1,4 @@
-package com.krzysiudan.ourshoppinglist.Fragments;
+package com.krzysiudan.ourshoppinglist.Fragments.Dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

@@ -1,4 +1,4 @@
-package com.krzysiudan.ourshoppinglist.DatabaseItems;
+package com.krzysiudan.ourshoppinglist.Models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -7,7 +7,6 @@ import android.util.Log;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;

@@ -1,4 +1,4 @@
-package com.krzysiudan.ourshoppinglist.DatabaseItems;
+package com.krzysiudan.ourshoppinglist.Models;
 
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;

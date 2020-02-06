@@ -3,7 +3,6 @@ package com.krzysiudan.ourshoppinglist.Adapters;
 import android.app.Activity;
 import android.content.Context;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
@@ -22,10 +21,6 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
@@ -34,7 +29,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.krzysiudan.ourshoppinglist.DatabaseItems.SingleItem;
+import com.krzysiudan.ourshoppinglist.Models.SingleItem;
 import com.krzysiudan.ourshoppinglist.R;
 
 import java.util.ArrayList;
@@ -56,10 +51,10 @@ public class RecyclerAdapterPlannedItemList extends RecyclerView.Adapter<Recycle
     private int position;
     private Context context;
 
-    public RecyclerAdapterPlannedItemList ( Activity activity,  String motherListKey, FirebaseFirestore mFirestore){
+    public RecyclerAdapterPlannedItemList ( Activity activity,  String motherListKey){
         mSnapshotList =new ArrayList<>();
         mActivity = activity;
-        this.mFirestore = mFirestore;
+        this.mFirestore = FirebaseFirestore.getInstance();
         mMotherListKey = motherListKey;
         Log.e(TAG,"MotherListKey in PlannedItems:"+mMotherListKey);
 

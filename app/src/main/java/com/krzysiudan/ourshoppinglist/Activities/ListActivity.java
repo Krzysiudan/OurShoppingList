@@ -1,13 +1,8 @@
 package com.krzysiudan.ourshoppinglist.Activities;
-
-
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-
-
 import androidx.annotation.Nullable;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -22,11 +17,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterShoppingList;
-import com.krzysiudan.ourshoppinglist.Fragments.DialogAddList;
+import com.krzysiudan.ourshoppinglist.Fragments.Dialogs.DialogAddList;
 import com.krzysiudan.ourshoppinglist.R;
 
 
@@ -39,22 +33,15 @@ public class ListActivity extends AppCompatActivity {
     public static final String TAG = "ListActivityLog";
 
     private String userUid;
-
-
-
-
     private FirebaseUser user;
     private FirebaseAuth mAuth;
     private RecyclerAdapterShoppingList mRecyclerAdapter;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
-
     @BindView(R.id.ShoppingListrv) RecyclerView mRecyclerView;
     @BindView(R.id.include2) Toolbar mToolbar;
     @BindView(R.id.floatingActionButton) FloatingActionButton newListButton;
     @BindView(R.id.toolbar_title) TextView mTitle;
-
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,7 +51,6 @@ public class ListActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         mAuth = FirebaseAuth.getInstance();
-
 
         setupFirebaseListener();
 

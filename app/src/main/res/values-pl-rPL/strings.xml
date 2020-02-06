@@ -50,4 +50,8 @@
     <string name="activity_list_top_bar_tittle">Twoje listy</string>
     <string name="toast_message_dialog_share_list_invitation_send">Zaproszenie wysłane, zaproś kolejnego znajomego lub zamknij :)</string>
     <string name="dialog_share_list_toast_when_email_like_user_email">It\'s your email genius! :)</string>
+    <string name="toast_sth_went_wrong">Sorry check your connection and try again</string>
+    <string name="push_notification_to_your_friends">Push notification to your friends</string>
+    <string name="send">Wyślij</string>
+    <string name="write_your_message_or_choose">"Wiadomość "</string>
 </resources>

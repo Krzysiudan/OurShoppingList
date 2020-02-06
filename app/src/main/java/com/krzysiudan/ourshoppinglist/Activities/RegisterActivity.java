@@ -30,7 +30,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.krzysiudan.ourshoppinglist.DatabaseItems.userModel;
+import com.krzysiudan.ourshoppinglist.Models.userModel;
 import com.krzysiudan.ourshoppinglist.R;
 
 import butterknife.BindView;

@@ -1,15 +1,18 @@
 package com.krzysiudan.ourshoppinglist.Fragments;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
@@ -24,23 +27,27 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.krzysiudan.ourshoppinglist.Activities.RegisterActivity;
 import com.krzysiudan.ourshoppinglist.Adapters.RecyclerAdapterPlannedItemList;
+import com.krzysiudan.ourshoppinglist.Fragments.Dialogs.DialogAddList;
+import com.krzysiudan.ourshoppinglist.Fragments.Dialogs.DialogNotification;
+import com.krzysiudan.ourshoppinglist.Fragments.Dialogs.DialogShareList;
 import com.krzysiudan.ourshoppinglist.R;
-import com.krzysiudan.ourshoppinglist.DatabaseItems.SingleItem;
+import com.krzysiudan.ourshoppinglist.Models.SingleItem;
 
-import java.util.HashMap;
-import java.util.Map;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class FragmentPlannedItems extends Fragment {
 
     private RecyclerView mRecyclerView;
+    private TextInputEditText addItemEditText;
+    private FloatingActionButton buttonNotificate;
+
     private DatabaseReference mDatabaseReference;
     private RecyclerAdapterPlannedItemList mRecyclerAdapter;
     private String mUsername;
-    private TextInputEditText addItemEditText;
     private String motherListKey;
     private FirebaseFirestore mFirestore;
     private FirebaseAuth mFirebaseAuth;
@@ -64,44 +71,63 @@ public class FragmentPlannedItems extends Fragment {
         mDatabaseReference= FirebaseDatabase.getInstance().getReference();
         mFirestore = FirebaseFirestore.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
-
-        Log.e("OurShoppingList","DISPLAY NAME: " + mUsername);
+        ButterKnife.bind((AppCompatActivity)getActivity());
 
         if(getArguments()!=null){
             Bundle b = this.getArguments();
             motherListKey = b.getString("MOTHERLISTKEY");
 
         }
-
-        Log.e("OurShoppingList","MOTHER:" + motherListKey);
-
-
     }
+
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_planned_items, container, false);
+        mRecyclerView = view.findViewById(R.id.recycler_view);
+        addItemEditText = view.findViewById(R.id.text_input_edit);
+        buttonNotificate = view.findViewById(R.id.floatingActionButtonNotification);
 
-        addItemEditText = (TextInputEditText) view.findViewById(R.id.text_input_edit);
-
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        buttonNotificate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendNotification();
+            }
+        });
 
         return view;
+    }
+
+    private  void sendNotification(){
+        Bundle mBundle = new Bundle();
+        mBundle.putString("key",motherListKey);
+
+        FragmentManager fm = ((AppCompatActivity)getActivity()).getSupportFragmentManager();
+        FragmentTransaction mFragmentTransaction = fm.beginTransaction();
+        Fragment old = fm.findFragmentByTag("Notification_Dialog");
+
+        if(old instanceof DialogNotification){
+            Log.d(TAG,"Fragment already exist");
+            mFragmentTransaction.remove(old);
+        }
+        DialogNotification dialog = DialogNotification.newInstance();
+        dialog.setArguments(mBundle);
+        mFragmentTransaction.addToBackStack(null);
+        dialog.show(mFragmentTransaction,"Notification_Dialog");
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
-
-
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        mRecyclerAdapter = new RecyclerAdapterPlannedItemList(getActivity(),motherListKey,mFirestore);
+        mRecyclerAdapter = new RecyclerAdapterPlannedItemList(getActivity(),motherListKey);
         mRecyclerView.setAdapter(mRecyclerAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setClickable(true);
@@ -129,14 +155,6 @@ public class FragmentPlannedItems extends Fragment {
                 return false;
             }
         });
-
-
-
-
-
     }
-
-
-
     }
 

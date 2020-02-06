@@ -36,9 +36,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.krzysiudan.ourshoppinglist.Activities.ActivityMainItems;
-import com.krzysiudan.ourshoppinglist.DatabaseItems.ShoppingList;
-import com.krzysiudan.ourshoppinglist.Fragments.DialogChangeName;
-import com.krzysiudan.ourshoppinglist.Fragments.DialogShareList;
+import com.krzysiudan.ourshoppinglist.Models.ShoppingList;
+import com.krzysiudan.ourshoppinglist.Fragments.Dialogs.DialogChangeName;
+import com.krzysiudan.ourshoppinglist.Fragments.Dialogs.DialogShareList;
 import com.krzysiudan.ourshoppinglist.R;
 import java.util.ArrayList;
 

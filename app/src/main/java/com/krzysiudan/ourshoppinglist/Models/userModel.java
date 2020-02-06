@@ -1,4 +1,4 @@
-package com.krzysiudan.ourshoppinglist.DatabaseItems;
+package com.krzysiudan.ourshoppinglist.Models;
 
 public class userModel {
     private String idToken;

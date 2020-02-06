@@ -53,6 +53,15 @@
     <string name="toast_message_dialog_share_list_invitation_send">Invitation sent, invite another friend or close :)</string>
     <string name="dialog_share_list_toast_when_no_such_email_in_database">We don\'t know this friend, please check this email again :)</string>
     <string name="dialog_share_list_toast_when_email_like_user_email">It\'s your email genius! :)</string>
+    <string name="toast_sth_went_wrong">Sorry check your connection and try again</string>
+    <string name="push_notification_to_your_friends">Push notification to your friends</string>
+    <string name="write_your_message_or_choose">Write your message or choose</string>
+    <string name="send">Send</string>
+    <string-array name="notifications">
+        <item>"I'm in shop, you want sth?"</item>
+        <item>"I'm going shopping"</item>
+        <item>"Going for some snacks"</item>
+    </string-array>
 
 
 </resources>
