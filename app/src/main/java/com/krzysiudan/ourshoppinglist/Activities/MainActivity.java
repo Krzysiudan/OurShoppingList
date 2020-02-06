@@ -116,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
         SpannableStringBuilder str = new SpannableStringBuilder("Don\'t have account yet? Sign up");
         str.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 24, str.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         buttonRegister.setText(str);
-        checkforToken();
     }
 
     private void handleFacebookAccessToken(AccessToken token) {
@@ -343,9 +342,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG,"User creation failed");
             }
         });
+
+        saveTokenFCM();
     }
 
-    private void checkforToken(){
+    private void saveTokenFCM(){
         FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
             @Override
             public void onSuccess(InstanceIdResult instanceIdResult) {

@@ -4,6 +4,8 @@ public class userModel {
     private String idToken;
     private String email;
     private String userName;
+    private String fcmToken;
+
 
     public userModel(String idToken, String email, String userName){
         this.idToken = idToken;
@@ -22,4 +24,9 @@ public class userModel {
     public String getUserName() {
         return userName;
     }
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
 }
