@@ -10,6 +10,7 @@
 
     <application
         android:label="@string/app_name"
+        android:name=".application.MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -18,7 +19,7 @@
         tools:ignore="GoogleAppIndexingWarning"
 
         >
-        <activity android:name="com.krzysiudan.ourshoppinglist.Activities.MainActivity"
+        <activity android:name="com.krzysiudan.ourshoppinglist.activities.MainActivity"
             android:screenOrientation="portrait"
              >
 
@@ -29,22 +30,22 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.krzysiudan.ourshoppinglist.Activities.RegisterActivity"
+        <activity android:name="com.krzysiudan.ourshoppinglist.activities.RegisterActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName=".Activities.MainActivity"
+            android:parentActivityName=".activities.MainActivity"
             >
         </activity>
 
-        <activity android:name=".Activities.ListActivity"
+        <activity android:name=".activities.ListActivity"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait"
-            android:parentActivityName=".Activities.MainActivity">
+            android:parentActivityName=".activities.MainActivity">
         </activity>
-        <activity android:name=".Activities.ActivityMainItems"
+        <activity android:name=".activities.ActivityMainItems"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait"
 
-            android:parentActivityName=".Activities.ListActivity">
+            android:parentActivityName=".activities.ListActivity">
         </activity>
 
         <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
@@ -78,7 +79,7 @@
         </activity>
 
         <service
-            android:name=".Services.MyFirebaseMessagingService"
+            android:name=".services.MyFirebaseMessagingService"
             >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

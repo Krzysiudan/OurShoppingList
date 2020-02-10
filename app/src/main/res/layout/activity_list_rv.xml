@@ -47,7 +47,7 @@
         android:src="@drawable/ic_round_add_24px"
         app:layout_anchor="@id/linear_layout_list_activity"
         app:layout_anchorGravity="bottom|right|end"
-        app:layout_behavior=".Animations.ScrollAwareFABBehavior"/>
+        app:layout_behavior=".animations.ScrollAwareFABBehavior"/>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
