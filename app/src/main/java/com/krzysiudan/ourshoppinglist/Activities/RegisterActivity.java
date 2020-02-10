@@ -23,13 +23,17 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.krzysiudan.ourshoppinglist.Models.userModel;
 import com.krzysiudan.ourshoppinglist.R;
 
@@ -224,6 +228,18 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.e(TAG,"User creation failed");
+            }
+        });
+        saveTokenFCM();
+    }
+
+    private void saveTokenFCM(){
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+            @Override
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                FirebaseUser user = mAuth.getCurrentUser();
+                DocumentReference userAccount = FirebaseFirestore.getInstance().collection("users").document(user.getEmail());
+                userAccount.update("fcmToken",instanceIdResult.getToken());
             }
         });
     }
