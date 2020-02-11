@@ -19,9 +19,11 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.krzysiudan.ourshoppinglist.adapters.RecyclerAdapterShoppingList;
 import com.krzysiudan.ourshoppinglist.fragments.Dialogs.DialogAddList;
 import com.krzysiudan.ourshoppinglist.R;
+import com.krzysiudan.ourshoppinglist.fragments.Dialogs.DialogDisplayName;
 
 
 import butterknife.BindView;
@@ -59,11 +61,8 @@ public class ListActivity extends BaseActivity{
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mTitle.setText(R.string.activity_list_top_bar_tittle);
+
     }
-
-
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.clear();
@@ -76,6 +75,7 @@ public class ListActivity extends BaseActivity{
         super.onStart();
 
         updateUI(mAuth.getCurrentUser());
+        checkIfUserFromFirebase();
         Log.e(TAG,"ON START");
         mRecyclerAdapter = new RecyclerAdapterShoppingList(this);
         mRecyclerView.setAdapter(mRecyclerAdapter);
@@ -84,6 +84,46 @@ public class ListActivity extends BaseActivity{
 
         FirebaseAuth.getInstance().addAuthStateListener(mAuthStateListener);
     }
+
+
+    private void checkIfUserFromFirebase(){
+        Intent fromRegisterActivity = getIntent();
+        if(fromRegisterActivity.getIntExtra("FirebaseUser",0)==100){
+            Log.d(TAG, "User logged in for the first time(auth with firebase");
+            getDisplayNameFromUser();
+        } else if(mAuth.getCurrentUser().getDisplayName().equals("")){
+            Log.d(TAG, "User don't have user name");
+            getDisplayNameFromUser();
+        }
+    }
+
+    private void getDisplayNameFromUser(){
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction mFragmentTransaction = fm.beginTransaction();
+        Fragment old = fm.findFragmentByTag("Display_Name_Dialog");
+
+        if(old instanceof DialogDisplayName){
+            Log.d(TAG,"Fragment already exist");
+            mFragmentTransaction.remove(old);
+        }
+        DialogDisplayName dialog = DialogDisplayName.newInstance();
+        mFragmentTransaction.addToBackStack(null);
+        dialog.show(mFragmentTransaction,"Display_Name_Dialog");
+    }
+
+    private String getProvider(){
+        FirebaseUser user = mAuth.getCurrentUser();
+        String providerId ="";
+        if(user != null){
+            for(UserInfo profile : user.getProviderData()){
+                providerId = profile.getProviderId();
+            }
+        }
+        return providerId;
+    }
+
+
+
 
     @OnClick(R.id.floatingActionButton)
     public void floatingActionButtonClicked(View view){
@@ -112,7 +152,6 @@ public class ListActivity extends BaseActivity{
         DialogAddList dialog = DialogAddList.newInstance();
         mFragmentTransaction.addToBackStack(null);
         dialog.show(mFragmentTransaction,"Add_List_Dialog");
-        View view = findViewById(R.id.activity_list_coordinatorLayout);
 
     }
 

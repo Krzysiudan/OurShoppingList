@@ -57,6 +57,9 @@
     <string name="push_notification_to_your_friends">Push notification to your friends</string>
     <string name="write_your_message_or_choose">Write your message or choose</string>
     <string name="send">Send</string>
+    <string name="add_your_display_name">Add your display name</string>
+    <string name="display_name">Display Name</string>
+    <string name="welcome">Welcome</string>
     <string-array name="notifications">
         <item>"I'm in shop, you want sth?"</item>
         <item>"I'm going shopping"</item>

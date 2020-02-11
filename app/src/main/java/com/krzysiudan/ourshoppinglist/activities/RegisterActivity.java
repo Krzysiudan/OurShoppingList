@@ -44,6 +44,7 @@ import butterknife.OnEditorAction;
 public class RegisterActivity extends BaseActivity {
 
     public static final String TAG = "RegisterActivityLog";
+    public static final int CREATE_DISPLAY_NAME = 100;
 
 
     private FirebaseAuth mAuth;
@@ -187,6 +188,7 @@ public class RegisterActivity extends BaseActivity {
             Toast.makeText(this.getApplicationContext(),"Account created happy shopping to you! :)",Toast.LENGTH_LONG).show();
             createUserModelInDatabase();
             Intent goToTheApp = new Intent(RegisterActivity.this, ListActivity.class);
+            goToTheApp.putExtra("FirebaseUser",CREATE_DISPLAY_NAME);
             finish();
             startActivity(goToTheApp);
         } else{

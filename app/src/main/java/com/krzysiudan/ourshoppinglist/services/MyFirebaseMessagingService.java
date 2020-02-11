@@ -21,8 +21,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         Log.d(TAG, "From: " + remoteMessage.getFrom());
-
-
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
@@ -31,7 +29,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             Activity currentActivity =((MyApp)getApplicationContext()).getCurrentActivity();
-
 
             new Thread()
             {
@@ -49,13 +46,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     });
                 }
             }.start();
-
         }
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
     }
-
-
 
     @Override
     public void onNewToken(@NonNull String s) {

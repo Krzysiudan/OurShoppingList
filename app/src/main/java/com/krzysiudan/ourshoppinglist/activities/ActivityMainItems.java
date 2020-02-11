@@ -66,7 +66,10 @@ public class ActivityMainItems extends BaseActivity {
         viewPager.setAdapter(mPagerAdapter);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
