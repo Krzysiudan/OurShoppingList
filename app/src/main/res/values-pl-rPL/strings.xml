@@ -54,4 +54,7 @@
     <string name="push_notification_to_your_friends">Push notification to your friends</string>
     <string name="send">Wyślij</string>
     <string name="write_your_message_or_choose">"Wiadomość "</string>
+    <string name="add_your_display_name">Wprowadź swoje imie</string>
+    <string name="display_name">Pseudonim</string>
+    <string name="welcome">Witaj</string>
 </resources>

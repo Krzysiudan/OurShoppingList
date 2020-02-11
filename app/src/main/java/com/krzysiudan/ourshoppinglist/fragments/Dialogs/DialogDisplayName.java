@@ -54,7 +54,7 @@ public class DialogDisplayName extends DialogFragment {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
         builder.setView(alertView);
 
-        builder.setPositiveButton(R.string.create, (dialogInterface, i) -> {
+        builder.setPositiveButton("OK", (dialogInterface, i) -> {
             String displayName = alert_editText.getText().toString();
 
             if(!displayName.equals("")){
@@ -64,17 +64,15 @@ public class DialogDisplayName extends DialogFragment {
                 String userEmail = mUser.getEmail();
                 DocumentReference userDocument = mFirestore.collection("users").document(userEmail);
                 userDocument.update("userName",displayName).addOnCompleteListener(task -> {
-
                     Log.d(TAG,"User display name succesfully changed to: " + displayName);
-                    Snackbar.make(parentView,R.string.welcome+" "+displayName+"!",Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(parentView,"Happy shopping!",Snackbar.LENGTH_LONG).show();
                     updateUserProfile(displayName);
 
                 }).addOnFailureListener(e ->
                         Log.e(TAG,"Display name changing failed"));
             }
-        })
-                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
-                });
+        });
+        builder.setCancelable(false);
         return builder.create();
 
     }

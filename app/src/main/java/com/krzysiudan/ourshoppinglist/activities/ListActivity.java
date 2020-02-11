@@ -177,6 +177,8 @@ public class ListActivity extends BaseActivity{
         if(mAuthStateListener!=null){
             FirebaseAuth.getInstance().removeAuthStateListener(mAuthStateListener);
         }
+        mRecyclerAdapter.stopListeningToChanges();
+
     }
 
     @Override
@@ -212,7 +214,5 @@ public class ListActivity extends BaseActivity{
     public void onBackPressed() {
         LogOut();
     }
-
-
 }
 

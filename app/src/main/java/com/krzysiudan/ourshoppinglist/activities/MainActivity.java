@@ -213,12 +213,6 @@ public class MainActivity extends BaseActivity {
                 });
     }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
     @Override
     protected void onStart() {
         updateUI(mAuth.getCurrentUser());
@@ -238,8 +232,6 @@ public class MainActivity extends BaseActivity {
     }
 
     private void attemptLogin(){
-
-        //reset errors
         inputEmail.setError(null);
         inputPassword.setError(null);
 
@@ -341,7 +333,6 @@ public class MainActivity extends BaseActivity {
                 Log.e(TAG,"User creation failed");
             }
         });
-
         saveTokenFCM();
     }
 

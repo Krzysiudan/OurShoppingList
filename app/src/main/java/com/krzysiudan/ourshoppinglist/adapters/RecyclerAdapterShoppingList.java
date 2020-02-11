@@ -82,7 +82,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     @Override
     public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
         if(e != null) {
-            Toast.makeText(context,"Error while loading",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,"Error while loading data",Toast.LENGTH_SHORT).show();
             Log.w(TAG,"Listener on ShoppingLists error:",e);
             return;
         }
@@ -356,7 +356,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         Log.d(TAG,log);
     }
 
-    private void stopListeningToChanges(){
+    public void stopListeningToChanges(){
         mListenerRegistration.remove();
     }
 
