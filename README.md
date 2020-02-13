@@ -1,6 +1,6 @@
 # OurShoppingList
 Aplication for sharing shopping or task lists with family or friends.
-Data is saved on firestore database(NoSql database). Aplication is available in english and polish.
+Data is saved on firestore database(NoSql database). Three options of authentications are available: by email and password/by google/by Facebook. Notifications are handle by FCM (Firebase Cloud Messaging). Aplication is available in english and polish.
 
 There is a RecyclerView with list of a lists and after clicking on an item you have two tabs: planned and bought items. Selecting an item will push it to another tab. 
 You can add lists and within the the list you can add, change and remove multiple items. By clicking on particular list you can share it with your friend by email adress. 
