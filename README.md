@@ -16,12 +16,12 @@ This is how my app looks like:
 
 
 
-![Login](https://user-images.githubusercontent.com/33498031/74434076-f2c4cf00-4e61-11ea-9b79-1db63e21359a.png)
-![List](https://user-images.githubusercontent.com/33498031/74434272-636beb80-4e62-11ea-9b3c-69e539ddb8cd.png)
-![Planned](https://user-images.githubusercontent.com/33498031/74434330-86969b00-4e62-11ea-8b2c-14b23d553b71.png)
-![Bought](https://user-images.githubusercontent.com/33498031/66516412-3d63c280-eae1-11e9-984a-9ee78efe2c44.PNG)
-![Register](https://user-images.githubusercontent.com/33498031/74434114-053f0880-4e62-11ea-8920-4305b93e234f.png)
-![Notification](https://user-images.githubusercontent.com/33498031/74434367-9a420180-4e62-11ea-8bad-80a399e85a31.png)
+![Login](https://user-images.githubusercontent.com/33498031/74435105-ffe2bd80-4e63-11ea-8b7f-abff1a4e1c5e.png)
+![Register](https://user-images.githubusercontent.com/33498031/74435144-14bf5100-4e64-11ea-955c-8ee56c683b18.png)
+![ListActivity](https://user-images.githubusercontent.com/33498031/74435356-8a2b2180-4e64-11ea-9b84-292330bcdac1.png)
+![PlannedItems](https://user-images.githubusercontent.com/33498031/74435396-a038e200-4e64-11ea-81fa-3b1ecdf4a0d5.png)
+![Notification](https://user-images.githubusercontent.com/33498031/74435408-a75ff000-4e64-11ea-9a8a-b5a9310d5a75.png)
+![BoughtItems](https://user-images.githubusercontent.com/33498031/74435446-bf377400-4e64-11ea-95ad-1e99fb23c1e9.png)
 
 
 
