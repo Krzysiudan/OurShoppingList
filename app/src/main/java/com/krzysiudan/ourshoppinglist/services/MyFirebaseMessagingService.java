@@ -54,8 +54,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onNewToken(@NonNull String s) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        DocumentReference userAccount = FirebaseFirestore.getInstance().collection("users").document(user.getEmail());
-        userAccount.update("FCMToken",s);
+        if(user!=null){
+            DocumentReference userAccount = FirebaseFirestore.getInstance().collection("users").document(user.getEmail());
+            userAccount.update("FCMToken",s);
+        }
         super.onNewToken(s);
     }
 }

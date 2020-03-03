@@ -27,12 +27,21 @@ import java.util.Map;
 public class DialogAddList extends DialogFragment {
 
     private static String TAG = "OurShoppingList";
+    private OnListAddedListener callback;
 
     public static DialogAddList newInstance() {
         return new DialogAddList();
     }
 
     public DialogAddList(){
+    }
+
+    public void setOnListAddedListener(DialogAddList.OnListAddedListener callback){
+        this.callback = callback;
+    }
+
+    public interface OnListAddedListener{
+        void onListAdded(DocumentReference documentReference);
     }
 
     @NonNull
@@ -78,8 +87,9 @@ public class DialogAddList extends DialogFragment {
                 mWriteBatch.set(addUserAllowed,map);
 
                 mWriteBatch.commit().addOnCompleteListener(task -> {
-                            Log.d(TAG, "Successfully added list");
+                    Log.d(TAG, "Successfully added list");
                     Snackbar.make(parentView,"List added",Snackbar.LENGTH_SHORT).show();
+                    callback.onListAdded(toShoppingLists);
                         }
                 ).addOnFailureListener(e ->
                         Log.d(TAG,"Failed with adding list"));

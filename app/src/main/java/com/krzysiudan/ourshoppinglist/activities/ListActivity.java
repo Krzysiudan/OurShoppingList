@@ -152,6 +152,7 @@ public class ListActivity extends BaseActivity{
         DialogAddList dialog = DialogAddList.newInstance();
         mFragmentTransaction.addToBackStack(null);
         dialog.show(mFragmentTransaction,"Add_List_Dialog");
+        dialog.setOnListAddedListener(mRecyclerAdapter);
 
     }
 

@@ -76,7 +76,6 @@ public class RecyclerAdapterPlannedItemList extends RecyclerView.Adapter<Recycle
                             Log.e(TAG,"New sign in planned item added" + dc.getDocument().getData());
                             mSnapshotList.add(dc.getDocument());
                             notifyItemInserted(mSnapshotList.size()-1);
-                            //TODO change notifyDataSetCHanged to less global solution
                             break;
                         case MODIFIED:
                             Log.e(TAG,"Shoppinglist edited " + dc.getDocument().getData());
@@ -85,7 +84,6 @@ public class RecyclerAdapterPlannedItemList extends RecyclerView.Adapter<Recycle
                             Log.e(TAG,"Shoppinglist removed" + dc.getDocument().getData());
                             mSnapshotList.remove(dc.getDocument());
                             notifyItemRemoved(mSnapshotList.size()-1);
-                            //TODO change notifyDataSetCHanged to less global solution
                             break;
                     }
                 }
@@ -95,7 +93,6 @@ public class RecyclerAdapterPlannedItemList extends RecyclerView.Adapter<Recycle
     }
 
     public RecyclerAdapterPlannedItemList(){
-
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

@@ -22,6 +22,8 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -36,13 +38,14 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.krzysiudan.ourshoppinglist.activities.ActivityMainItems;
+import com.krzysiudan.ourshoppinglist.fragments.Dialogs.DialogAddList;
 import com.krzysiudan.ourshoppinglist.models.ShoppingList;
 import com.krzysiudan.ourshoppinglist.fragments.Dialogs.DialogChangeName;
 import com.krzysiudan.ourshoppinglist.fragments.Dialogs.DialogShareList;
 import com.krzysiudan.ourshoppinglist.R;
 import java.util.ArrayList;
 
-public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAdapterShoppingList.ViewHolder> implements  EventListener<QuerySnapshot>, DialogChangeName.OnNameInsertedListener {
+public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAdapterShoppingList.ViewHolder> implements  EventListener<QuerySnapshot>, DialogChangeName.OnNameInsertedListener, DialogAddList.OnListAddedListener {
 
     public static final String TAG = "OurShoppingList";
 
@@ -61,6 +64,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         mFirebaseUser = mAuth.getCurrentUser();
         mSnapshotList = new ArrayList<>();
         this.context = activity.getApplicationContext();
+
     }
 
     @Override
@@ -99,22 +103,25 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
             switch (dc.getType()) {
                 case ADDED:
                     Log.w(TAG, "New shoppinglist ADDED" + dc.getDocument().getData());
-                    mSnapshotList.add(dc.getDocument());
-                    notifyItemInserted(mSnapshotList.size());
+                    if(!checkIfDocInList(dc.getDocument())){
+                        mSnapshotList.add(dc.getDocument());
+                        notifyItemInserted(mSnapshotList.size()-1);
+                    }
                     break;
                 case MODIFIED:
                     Log.w(TAG, "Shoppinglist MODIFIED: " + dc.getDocument().getData());
                     notifyDataSetChanged();
                     break;
                 case REMOVED:
-                    int position= mSnapshotList.indexOf(dc.getDocument());
-                    Log.w(TAG, "Shoppinglist REMOVED" + dc.getDocument().getData()+" Position: "+position);
+                    Log.w(TAG, "Shoppinglist REMOVED" + dc.getDocument().getData());
                     break;
             }
         }
     }
 
-
+    private boolean checkIfDocInList(DocumentSnapshot doc){
+        return mSnapshotList.indexOf(doc) != -1;
+    }
 
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,PopupMenu.OnMenuItemClickListener  {
@@ -194,6 +201,7 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
     }
 
 
+
     @NonNull
     @Override
     public RecyclerAdapterShoppingList.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
@@ -236,13 +244,28 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
         return listName;
     }
 
-
     public int getItemCount() {
         return mSnapshotList.size();
     }
 
     private ShoppingList getItem(int position) {
         return mSnapshotList.get(position).toObject(ShoppingList.class);
+    }
+
+    @Override
+    public void onListAdded(DocumentReference documentReference) {
+        documentReference.get().addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                if(task.getResult()!=null){
+                    if(mSnapshotList.indexOf(task.getResult())==-1) {
+                        mSnapshotList.add(task.getResult());
+                        notifyItemInserted(mSnapshotList.size());
+                    }
+                }
+            }else{
+                Log.e(TAG,"Getting document failed: "+task.getException());
+            }
+        });
     }
 
     private void removeList(final int position){
@@ -253,8 +276,9 @@ public class RecyclerAdapterShoppingList extends RecyclerView.Adapter<RecyclerAd
                         logMessage("List with key: " + key + "has been removed on position : " +position))
                 .addOnFailureListener(e ->
                         logMessage("Failure removing list with key: " + key));
-                mSnapshotList.remove(position);
-                notifyItemRemoved(position);
+        mSnapshotList.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeRemoved(position,1);
     }
 
     private DocumentReference getDocumentReference(String key){
